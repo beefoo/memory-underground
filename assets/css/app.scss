@@ -1,0 +1,72 @@
+@import "mixins";
+@import "variables";
+@import "keyframes";
+@import "fonts";
+@import "vendor/normalize.css";
+
+/* Document */
+body {
+  color: $dark;
+  background: $light;
+  font-family: 'OpenSans', 'HelveticaNeue-Light', 'HelveticaNeue', Helvetica, Arial, sans-serif;
+}
+
+/* Global Elements */
+a {
+  color: $secondary;
+  text-decoration: none;
+  &:active,
+  &:hover {
+    outline: 0;
+    color: $secondaryLight;
+  }
+}
+img {
+  border: 0;
+}
+ul {
+  list-style: none;
+  margin: 0;
+  padding: 0;
+}
+
+/* Scaffold */
+.side-panel {
+  position: fixed;
+  top: 0;
+  left: 0;
+  width: 300px;
+  height: 100%;
+  overflow: auto;
+  background: $dark;
+  color: $white;
+  padding: 1em;
+  @include box-sizing();
+  h1 {
+    color: $light;
+    margin-bottom: 0.2em;
+  }
+  h2 {
+    margin-top: 0;
+  }
+  @media (max-width: $breakSmall) {
+    position: relative;
+    top: auto;
+    left: auto;
+    width: auto;
+    height: auto;
+    h1 {
+      margin-top: 0;
+    }
+  }
+}
+.main {
+  margin-left: 300px;
+  padding: 1em;
+  @include box-sizing();
+  @media (max-width: $breakSmall) {
+    margin-left: 0;
+  }
+}
+
+
