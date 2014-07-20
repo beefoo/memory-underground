@@ -87,3 +87,10 @@
   -ms-transition:     $params;
   transition:         $params;
 }
+@mixin transition-list($values...){
+  -moz-transition:    $values;
+  -o-transition:      $values;
+  -webkit-transition: $values;
+  -ms-transition:     $values;
+  transition:         $values;
+}

@@ -30,24 +30,45 @@ ul {
   padding: 0;
 }
 
+/* Components */
+.button {
+  background: $secondary;
+  color: $white;
+  padding: 0.5em 1em;
+  margin: 0.5em 0;
+  text-align: center;
+  display: inline-block;
+  &:hover {
+    background: $secondaryLight;
+    color: $white;
+  }
+  &.expand {
+    display: block;
+  }
+  &.large {
+    font-size: 1.4em;
+    font-weight: bold;
+  }
+}
+
 /* Scaffold */
 .side-panel {
   position: fixed;
   top: 0;
   left: 0;
-  width: 300px;
+  width: 20%;
   height: 100%;
   overflow: auto;
   background: $dark;
   color: $white;
   padding: 1em;
+  @include transition(width 0.5s);
   @include box-sizing();
-  h1 {
+  h1 span {
     color: $light;
-    margin-bottom: 0.2em;
   }
-  h2 {
-    margin-top: 0;
+  @media (max-width: $breakLarge) {
+    width: 30%;
   }
   @media (max-width: $breakSmall) {
     position: relative;
@@ -61,11 +82,32 @@ ul {
   }
 }
 .main {
-  margin-left: 300px;
-  padding: 1em;
-  @include box-sizing();
+  width: 80%;
+  height: 100%;
+  top: 0;
+  left: 20%;
+  position: fixed;
+  @include transition-list(width 0.5s, left 0.5s);
+  .map {
+    position: absolute;
+    top: 0;
+    left: 0;
+    width: 100%;
+    height: 100%;
+    background: center no-repeat;
+    background-size: cover;
+  }
+  @media (max-width: $breakLarge) {
+    width: 70%;
+    left: 30%;
+  }
   @media (max-width: $breakSmall) {
-    margin-left: 0;
+    position: relative;
+    top: auto;
+    left: auto;
+    width: 100%;
+    height: auto;
+    min-height: 400px;
   }
 }
 
