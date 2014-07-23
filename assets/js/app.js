@@ -23,6 +23,7 @@ app.routers.MainRouter = Backbone.Router.extend({
   routes: {
     '': 'home',
     'build': 'mapsAdd',
+    'build?*queryString': 'mapsAdd',
     'build/:id': 'mapsEdit',
     'maps/:id': 'mapsShow'
   },
@@ -31,8 +32,11 @@ app.routers.MainRouter = Backbone.Router.extend({
     app.views.main = new app.views.HomeView({});
   },
   
-  mapsAdd: function(){
-    app.views.main = new app.views.MapsAddView({});
+  mapsAdd: function(params){
+    params = helper.parseQueryString(params);
+    params = $.extend({}, config, params);
+    console.log(params);
+    app.views.main = new app.views.MapsAddView(params);   
   },
   
   mapsEdit: function(id){
