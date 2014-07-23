@@ -43,28 +43,38 @@ app.views.MapsAddView = Backbone.View.extend({
     var that = this,
         $canvas = $('#map-canvas'), canvas = $canvas[0],
         width = $canvas.width(), height = $canvas.height(),
-        canvasPadding = this.options.canvasPadding,
-        activeW = width - 2*canvasPadding,
-        activeH = height - 2*canvasPadding,
         gridUnit = this.options.gridUnit,
+        canvasPadding = gridUnit,
+        activeW = width - 2*canvasPadding,
+        activeH = height - 2*canvasPadding,        
         lines = [];
         
     paper.setup(canvas);
     
     // draw the lines first
-    for(var i=0; i<12; i++) {      
+    for(var i=0; i<5; i++) {      
       var x = _.random(Math.round(activeW*1/3), Math.round(activeW*2/3)),
           y = _.random(Math.round(activeH*1/3), Math.round(activeH*2/3)),
           point = {x: helper.roundToNearest(x, gridUnit), y: helper.roundToNearest(y, gridUnit)},
-          initial = [false, false, false, false, false, point, false, false, false, false, false],
-          points = this.getPoints(initial, width, height);   
-      this.drawLine(points, i);
-      lines.push(points);      
+          initialPoints = [false, false, false, false, false, point, false, false, false, false, false],
+          offset = 0, line, pathType1=false, pathType2=false;
+      if (i>0) {
+        offset++;
+        for(var j = 4; j<=6; j++) {
+          initialPoints[j] = lines[0].points[j];
+          initialPoints[j].offset = offset;
+        }
+        pathType1 = lines[0].pathType1;
+        pathType2 = lines[0].pathType2;
+      }
+      line  = this.getLine(initialPoints, width, height, pathType1, pathType2);
+      this.drawLine(line.points, i);
+      lines.push(line);      
     }
     
     // draw the points
-    _.each(lines, function(points, i){
-      that.drawPoints(points, i);
+    _.each(lines, function(line, i){
+      that.drawPoints(line.points, i);
     });
     
     paper.view.draw();
@@ -76,7 +86,7 @@ app.views.MapsAddView = Backbone.View.extend({
     var that = this,
         color = this.options.colors[iterator],
         colorText = this.options.colorText,
-        colorPoint = this.options.inverse ? this.options.colorPointInverse : this.options.colorPoint,
+        colorPoint = color.inverse ? this.options.colorPointInverse : this.options.colorPoint,
         fontFamily = this.options.fontFamily,
         fontSize = this.options.fontSize,
         minTextLength = this.options.minTextLength,
@@ -139,42 +149,7 @@ app.views.MapsAddView = Backbone.View.extend({
     $("body").append($("<img src='data:image/svg+xml;base64,\n"+b64+"' alt='file.svg'/>"));
   },
   
-  getPoint: function(x, y, pathType, noFollowDirection, width, height){
-    var j = 0,
-        limit = 50,
-        canvasPadding = this.options.canvasPadding,
-        minX = canvasPadding, minY = canvasPadding,
-        maxX = width - minX, maxY = height - minY,
-        gridUnit = this.options.gridUnit,
-        minSegLen = gridUnit,
-        maxSegLen = gridUnit*6,
-        _x = x, _y = y;        
-    do {        
-      // try a random direction
-      direction = _.sample(pathType.directions);
-      // try a random segment length    
-      var length = _.random(minSegLen, maxSegLen),
-          coords = this.translateCoordinates(x, y, direction, length);
-      _x = helper.roundToNearest(coords[0], gridUnit);
-      _y = helper.roundToNearest(coords[1], gridUnit);    
-      j++;
-    } while(
-      j <= limit && // prevent infinite loops
-      ( direction === noFollowDirection || // follow the noFollow rules
-       _x<minX || _x>maxX || _y<minY || _y>maxY ) // make sure within bounds
-    );
-    x = _x;
-    y = _y;    
-    // add new point
-    return {
-      direction1: direction,
-      direction2: false,
-      x: x,
-      y: y
-    };
-  },
-  
-  getPoints: function(initial, width, height){
+  getLine: function(initial, width, height, pathType1, pathType2){
     var that = this,
         points = initial;
     
@@ -192,8 +167,8 @@ app.views.MapsAddView = Backbone.View.extend({
       rand1 = _.random(0, pathTypes.length-1),
       rand2 = Math.round(rand1 + pathTypes.length/2);      
     if (rand2>pathTypes.length-1) rand2 = rand2 - pathTypes.length;
-    var pathType1 = pathTypes[rand1],
-        pathType2 = pathTypes[rand2];
+    pathType1 = pathType1 || pathTypes[rand1];
+    pathType2 = pathType2 || pathTypes[rand2];
         
     // determine starting point  
     var initialPoints = _.filter(points, function(p){ return p!==false; }),
@@ -238,7 +213,46 @@ app.views.MapsAddView = Backbone.View.extend({
       }
     });
     
-    return points;
+    return {
+      pathType1: pathType1,
+      pathType2: pathType2,
+      points: points
+    };
+  },
+  
+  getPoint: function(x, y, pathType, noFollowDirection, width, height){
+    var j = 0,
+        limit = 50,
+        gridUnit = this.options.gridUnit,
+        canvasPadding = gridUnit,
+        minX = canvasPadding, minY = canvasPadding,
+        maxX = width - minX, maxY = height - minY,        
+        minSegLen = gridUnit,
+        maxSegLen = gridUnit*6,
+        _x = x, _y = y;        
+    do {        
+      // try a random direction
+      direction = _.sample(pathType.directions);
+      // try a random segment length    
+      var length = _.random(minSegLen, maxSegLen),
+          coords = this.translateCoordinates(x, y, direction, length);
+      _x = helper.roundToNearest(coords[0], gridUnit);
+      _y = helper.roundToNearest(coords[1], gridUnit);    
+      j++;
+    } while(
+      j <= limit && // prevent infinite loops
+      ( direction === noFollowDirection || // follow the noFollow rules
+       _x<minX || _x>maxX || _y<minY || _y>maxY ) // make sure within bounds
+    );
+    x = _x;
+    y = _y;    
+    // add new point
+    return {
+      direction1: direction,
+      direction2: false,
+      x: x,
+      y: y
+    };
   },
   
   textPosition: function(direction1, direction2) {
