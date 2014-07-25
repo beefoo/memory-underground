@@ -44,4 +44,7 @@
   helper.roundToNearest = function(num, nearest){
     return nearest * Math.round(num/nearest);
   };
+  helper.floorToNearest = function(num, nearest){
+    return nearest * Math.floor(num/nearest);
+  };
 })();

@@ -35,8 +35,10 @@ app.routers.MainRouter = Backbone.Router.extend({
   mapsAdd: function(params){
     params = helper.parseQueryString(params);
     params = $.extend({}, config, params);
-    console.log(params);
-    app.views.main = new app.views.MapsAddView(params);   
+    $.getJSON( "/data/brian.json", function(data) {
+      params.points = data.points;
+      app.views.main = new app.views.MapsAddView(params);
+    });   
   },
   
   mapsEdit: function(id){

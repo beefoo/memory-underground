@@ -1,4 +1,20 @@
 var config = {
+  "width": 1600,
+  "height": 2400,
+  "padding": [50, 50],  
+  "textColor": "#222222",  
+  "fontFamily": "sans-serif",
+  "fontSize": 12,
+  "gridUnit": 1,
+  "maxLines": 32,
+  "maxPointsPerLine": 32,
+  "minTextLength": 1,
+  "maxTextLength": 24,
+  "pathStyle": "straight", // smooth, straight  
+  "pointColor": "#ffffff",
+  "pointColorInverse": "#ffffff",
+  "pointRadius": 3,
+  "strokeWidth": 10,
   "colors": [
     {"hex":"#e11002","group":"red"},
     {"hex":"#ff6d1c","group":"orange"},
@@ -32,19 +48,44 @@ var config = {
     {"hex":"#371b79","group":"violet"},
     {"hex":"#682015","group":"brown"},
     {"hex":"#535353","group":"gray"}
-  ],  
-  "colorPoint": "#ffffff",
-  "colorPointInverse": "#ffffff",
-  "colorText": "#222222",  
-  "fontFamily": "sans-serif",
-  "fontSize": 12,
-  "gridUnit": 50,
-  "maxLines": 32,
-  "maxPointsPerLine": 32,
-  "minTextLength": 1,
-  "maxTextLength": 24,
-  "pathStyle": "straight", // smooth, straight
-  "pointRadius": 3,  
-  "rule": "Web", // Random, RandomSorted, RandomVector
-  "strokeWidth": 10
+  ],
+  "pathTypes": [
+    {"xDirection":false,"directions":["s"],"minXUnit":0,"minYUnit":1}, // straight line
+    {"xDirection":"e","directions":["e","s"],"minXUnit":1,"minYUnit":1,"shuffle":true}, // elbow
+    {"xDirection":"w","directions":["s","w"],"minXUnit":1,"minYUnit":1,"shuffle":true}, // elbow 
+    //{"xDirection":"e","directions":["se","s"],"minXUnit":1,"minYUnit":2,"shuffle":true},
+    //{"xDirection":"w","directions":["s","sw"],"minXUnit":1,"minYUnit":2,"shuffle":true},
+    {"xDirection":"e","directions":["s","e","s"],"minXUnit":1,"minYUnit":2,"shuffle":false},
+    {"xDirection":"w","directions":["s","w","s"],"minXUnit":1,"minYUnit":2,"shuffle":false},
+    //{"xDirection":"e","directions":["se","e"],"minXUnit":2,"minYUnit":1,"shuffle":true},
+    //{"xDirection":"w","directions":["sw","w"],"minXUnit":2,"minYUnit":1,"shuffle":true},
+    {"xDirection":"e","directions":["e","s","e"],"minXUnit":2,"minYUnit":1,"shuffle":false},
+    {"xDirection":"w","directions":["w","s","w"],"minXUnit":2,"minYUnit":1,"shuffle":false},    
+    {"xDirection":"e","directions":["e","se","s"],"minXUnit":2,"minYUnit":2,"shuffle":true},
+    {"xDirection":"w","directions":["s","sw","w"],"minXUnit":2,"minYUnit":2,"shuffle":true},
+    /* {"xDirection":"e","directions":["e","s","e","s"],"minXUnit":2,"minYUnit":2,"shuffle":false},    
+    {"xDirection":"e","directions":["s","e","s","e"],"minXUnit":2,"minYUnit":2,"shuffle":false},
+    {"xDirection":"w","directions":["s","w","s","w"],"minXUnit":2,"minYUnit":2,"shuffle":false},
+    {"xDirection":"w","directions":["w","s","w","s"],"minXUnit":2,"minYUnit":2,"shuffle":false}, */
+    
+    // temp hack to have more diagonals
+    {"xDirection":"e","directions":["e","se","s"],"minXUnit":2,"minYUnit":2,"shuffle":true},
+    {"xDirection":"w","directions":["s","sw","w"],"minXUnit":2,"minYUnit":2,"shuffle":true},
+    {"xDirection":"e","directions":["e","se","s"],"minXUnit":2,"minYUnit":2,"shuffle":true},
+    {"xDirection":"w","directions":["s","sw","w"],"minXUnit":2,"minYUnit":2,"shuffle":true},
+    {"xDirection":"e","directions":["e","se","s"],"minXUnit":2,"minYUnit":2,"shuffle":true},
+    {"xDirection":"w","directions":["s","sw","w"],"minXUnit":2,"minYUnit":2,"shuffle":true},
+    {"xDirection":"e","directions":["e","se","s"],"minXUnit":2,"minYUnit":2,"shuffle":true},
+    {"xDirection":"w","directions":["s","sw","w"],"minXUnit":2,"minYUnit":2,"shuffle":true},
+    {"xDirection":"e","directions":["e","se","s"],"minXUnit":2,"minYUnit":2,"shuffle":true},
+    {"xDirection":"w","directions":["s","sw","w"],"minXUnit":2,"minYUnit":2,"shuffle":true}
+    //{"xDirection":"e","directions":["s","se","s"],"minXUnit":1,"minYUnit":3,"shuffle":false},    
+    //{"xDirection":"w","directions":["s","sw","s"],"minXUnit":1,"minYUnit":3,"shuffle":false},    
+    //{"xDirection":"e","directions":["e","se","e"],"minXUnit":3,"minYUnit":1,"shuffle":false},    
+    //{"xDirection":"w","directions":["w","sw","w"],"minXUnit":3,"minYUnit":1,"shuffle":false},       
+    //{"xDirection":"e","directions":["se","s","se"],"minXUnit":2,"minYUnit":3,"shuffle":false},
+    //{"xDirection":"w","directions":["sw","s","sw"],"minXUnit":2,"minYUnit":3,"shuffle":false},    
+    //{"xDirection":"e","directions":["se","e","se"],"minXUnit":3,"minYUnit":2,"shuffle":false},
+    //{"xDirection":"w","directions":["sw","w","sw"],"minXUnit":3,"minYUnit":2,"shuffle":false}
+  ]
 };

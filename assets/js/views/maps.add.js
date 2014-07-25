@@ -3,9 +3,14 @@ app.views.MapsAddView = Backbone.View.extend({
   el: 'body',
 
   initialize: function(options) {
-    this.options = options;
-    this.initPanZoom($("#map-canvas"));      
-    this.drawMap();    
+    var points = options.points,
+        width = options.width,
+        height = options.height;
+    
+    var lines = this.generateLines(points, width, height, options);
+    
+    this.drawMap(lines, width, height);
+    this.initPanZoom($("#map-svg")); 
   },
   
   initPanZoom: function($selector){    
@@ -22,240 +27,331 @@ app.views.MapsAddView = Backbone.View.extend({
     });
   },
   
-  drawLine: function(points, iterator){
-    var that = this,
-        color = this.options.colors[iterator],
-        pathStyle = this.options.pathStyle,
-        strokeWidth = this.options.strokeWidth;    
+  drawMap: function(lines, width, height){
+    var svg = d3.select("#svg-wrapper")
+      .append("svg")
+      .attr("id", "map-svg")
+      .attr("width", width)
+      .attr("height", height);
+
+    var svg_line = d3.svg.line()
+      .x(function(d) { return d.x; })
+      .y(function(d) { return d.y; });
+    
+    var labels = [];
+    _.each(lines, function(line){
+      var path = svg.append("path")
+        .attr("d", svg_line(line.points))
+        .style("stroke", line.color)
+        .style("stroke-width", line.strokeWidth)
+        .style("stroke-linecap", "round")
+        .style("stroke-linejoin", "round")
+        .style("fill", "none");
       
-    var path = new paper.Path({
-      segments: _.map(points, function(p){ return [p.x, p.y]; }),
-      strokeColor: color.hex,
-      strokeWidth: strokeWidth,
-      strokeCap: 'round',
-      strokeJoin: 'round'
+      var line_labels = _.filter(line.points, function(p){ return p.label !== undefined; });
+      labels = _.union(labels, line_labels);      
     });
     
-    if (pathStyle==="smooth") path.smooth(); 
+    // add dots and labels
+    svg.selectAll("dot")
+        .data(labels)
+        .enter().append("circle")
+        .attr("r", function(d) { return d.pointRadius; })
+        .attr("cx", function(d) { return d.x; })
+        .attr("cy", function(d) { return d.y; })
+        .style("fill", function(d){ return d.pointColor; }); 
   },
   
-  drawMap: function(){
-    var that = this,
-        $canvas = $('#map-canvas'), canvas = $canvas[0],
-        width = $canvas.width(), height = $canvas.height(),
-        gridUnit = this.options.gridUnit,
-        canvasPadding = gridUnit,
-        activeW = width - 2*canvasPadding,
-        activeH = height - 2*canvasPadding,        
-        lines = [];
-        
-    paper.setup(canvas);
-    
-    // draw the lines first
-    for(var i=0; i<5; i++) {      
-      var x = _.random(Math.round(activeW*1/3), Math.round(activeW*2/3)),
-          y = _.random(Math.round(activeH*1/3), Math.round(activeH*2/3)),
-          point = {x: helper.roundToNearest(x, gridUnit), y: helper.roundToNearest(y, gridUnit)},
-          initialPoints = [false, false, false, false, false, point, false, false, false, false, false],
-          offset = 0, line, pathType1=false, pathType2=false;
-      if (i>0) {
-        offset++;
-        for(var j = 4; j<=6; j++) {
-          initialPoints[j] = lines[0].points[j];
-          initialPoints[j].offset = offset;
-        }
-        pathType1 = lines[0].pathType1;
-        pathType2 = lines[0].pathType2;
-      }
-      line  = this.getLine(initialPoints, width, height, pathType1, pathType2);
-      this.drawLine(line.points, i);
-      lines.push(line);      
-    }
-    
-    // draw the points
-    _.each(lines, function(line, i){
-      that.drawPoints(line.points, i);
-    });
-    
-    paper.view.draw();
-    
-    // this.exportSVG();   
-  },
-  
-  drawPoints: function(points, iterator){
-    var that = this,
-        color = this.options.colors[iterator],
-        colorText = this.options.colorText,
-        colorPoint = color.inverse ? this.options.colorPointInverse : this.options.colorPoint,
-        fontFamily = this.options.fontFamily,
-        fontSize = this.options.fontSize,
-        minTextLength = this.options.minTextLength,
-        maxTextLength = this.options.maxTextLength,
-        pointRadius = this.options.pointRadius;
-        
-    var circle = new paper.Path.Circle({
-      radius: pointRadius,
-      fillColor: colorPoint
-    });
-    
-    _.each(points, function(p, i){
-      var dot = new paper.Symbol(circle);
-      dot.place([p.x, p.y]);
-      
-      var textPosition = that.textPosition(p.direction1, p.direction2),
-          textAlign = 'center',
-          textOffsetX = 0,
-          textOffsetY = 15;
-      
-      switch(textPosition){
-        case 'n':
-          textOffsetY *= -1;
-          break;
-        case 'e':
-          textOffsetX = 15;
-          textOffsetY = 5;
-          textAlign = 'left';
-          break;
-        case 'w':
-          textOffsetX = -15;
-          textOffsetY = 5;
-          textAlign = 'right';
-          break;
-        default:          
-          break;
-      }
-      
-      var textPoint = [p.x+textOffsetX, p.y+textOffsetY],
-          text = new paper.PointText({
-          point: textPoint,
-          content: helper.randomString(_.random(5, 15))+i,
-          fillColor: colorText,
-          fontFamily: fontFamily,
-          fontSize: fontSize,
-          justification: textAlign
-      });
-    });
-    
-  },
-  
-  exportSVG: function(){
-    var svg = paper.project.exportSVG();
-    
-    svg.id = "map-svg";
-    $('.svg-wrapper').append(svg);    
-    
+  exportSVG: function(){    
     var svg_xml = $("#map-svg").parent().html(),
         b64 = window.btoa(svg_xml);
-    $("body").append($("<img src='data:image/svg+xml;base64,\n"+b64+"' alt='file.svg'/>"));
+        
+    data_url = "data:image/svg+xml;base64,\n"+b64;  
+    window.open(data_url, '_blank');
+    
+    // $("body").append($("<img src='data:image/svg+xml;base64,\n"+b64+"' alt='file.svg'/>"));
   },
   
-  getLine: function(initial, width, height, pathType1, pathType2){
+  generateLines: function(points, width, height, options){
     var that = this,
-        points = initial;
+        // options
+        paddingX = options.padding[0],
+        paddingY = options.padding[1],
+        colors = options.colors,
+        pathTypes = options.pathTypes,
+        strokeWidth = options.strokeWidth,
+        pointRadius = options.pointRadius,
+        pointColor = options.pointColor,
+        // calculations
+        activeW = width - paddingX*2,
+        activeH = height - paddingY*2,
+        boundaries = {minX: paddingX, minY: paddingY, maxX: width-paddingX, maxY: height-paddingY},
+        pointCount = points.length,
+        yUnit = Math.floor(activeH/pointCount),
+        // initializers
+        lines = [],
+        colorIndex = 0;
     
-    // randomly choose path type and its opposite   
-    var pathTypes = [
-        {direction: 'n', directions: ['n', 'ne', 'e', 'w', 'nw'], noFollow: {e: 'w', w: 'e'}},
-        {direction: 'ne', directions: ['n', 'ne', 'e', 'se', 'nw'], noFollow: {nw: 'se', se: 'nw'}},
-        {direction: 'e', directions: ['n', 'ne', 'e', 'se', 's'], noFollow: {n: 's', s: 'n'}},
-        {direction: 'se', directions: ['ne', 'e', 'se', 's', 'sw'], noFollow: {ne: 'sw', sw: 'ne'}},
-        {direction: 's', directions: ['e', 'se', 's', 'sw', 'w'], noFollow: {e: 'w', w: 'e'}},
-        {direction: 'sw', directions: ['se', 's', 'sw', 'w', 'nw'], noFollow: {nw: 'se', se: 'nw'}},
-        {direction: 'w', directions: ['n', 's', 'sw', 'w', 'nw'], noFollow: {n: 's', s: 'n'}},
-        {direction: 'nw', directions: ['n', 'ne', 'sw', 'w', 'nw'], noFollow: {ne: 'sw', sw: 'ne'}}      
-      ],
-      rand1 = _.random(0, pathTypes.length-1),
-      rand2 = Math.round(rand1 + pathTypes.length/2);      
-    if (rand2>pathTypes.length-1) rand2 = rand2 - pathTypes.length;
-    pathType1 = pathType1 || pathTypes[rand1];
-    pathType2 = pathType2 || pathTypes[rand2];
+    // ensure y-unit is not zero
+    if (yUnit<=0) yUnit = 1;
+    
+    // loop through points
+    _.each(points, function(point, i){
+      var nextY = paddingY + i * yUnit, // next available yUnit
+          nextX = that.getNextX(boundaries, i, pointCount, activeW), // random X
+          targetPoint = false,          
+          offsetX = 1;
+      // loop through point's lines
+      _.each(point.lines, function(lineLabel, j){
+        // if line already exists
+        var foundLine = _.findWhere(lines, {label: lineLabel}),
+            newPoint, prevPoint;
         
-    // determine starting point  
-    var initialPoints = _.filter(points, function(p){ return p!==false; }),
-        firstPoint = initialPoints[0], lastPoint = initialPoints[initialPoints.length-1],
-        firstIndex = _.indexOf(points, firstPoint),
-        lastIndex = _.indexOf(points, lastPoint),
-        noFollowDirection = firstPoint.direction1 ? pathType1.noFollow[firstPoint.direction1] : false,
-        x = firstPoint.x, y = firstPoint.y,
-        newPoint;
-    
-    // add points to beginning
-    if (firstIndex>0) {
-      for (var i=firstIndex-1; i>=0; i--) {
-        newPoint = this.getPoint(x, y, pathType1, noFollowDirection, width, height);
-        points[i] = newPoint;
-        if (points[i+1]) points[i+1].direction2 = newPoint.direction1;
-        noFollowDirection = pathType1.noFollow[newPoint.direction1];
-        x = newPoint.x;
-        y = newPoint.y;
-      }
-    }
-    
-    // add points to end
-    x = lastPoint.x;
-    y = lastPoint.y;
-    noFollowDirection = lastPoint.direction1 ? pathType2.noFollow[lastPoint.direction1] : false;
-    if (lastIndex<points.length-1) {
-      for (var j=lastIndex+1; j<points.length; j++) {
-        newPoint = this.getPoint(x, y, pathType2, noFollowDirection, width, height);
-        points[j] = newPoint;
-        if (points[j-1]) points[j-1].direction2 = newPoint.direction1;
-        noFollowDirection = pathType2.noFollow[newPoint.direction1];
-        x = newPoint.x;
-        y = newPoint.y;
-      }
-    }
-    
-    // fill in the blanks
-    _.each(points, function(p, k){
-      if (p===false) {
-        // TODO
-      }
+        // if line already exists, make sure X is within 20% of previous X
+        if (foundLine) {
+          prevPoint = _.last(foundLine.points);          
+          nextX = that.getNextX(boundaries, i, pointCount, activeW, prevPoint);
+        }
+        
+        newPoint = {
+          x: nextX,
+          y: nextY,
+          pointRadius: pointRadius,
+          pointColor: pointColor
+        };
+            
+        // for first line, just add target point
+        if (targetPoint===false) {
+          targetPoint = newPoint;
+          newPoint.label = point.label; // only the target point of the first line gets label
+          
+        // for additional new lines, place first point next to the first line's target point with offset
+        } else {
+          // newPoint.x = targetPoint.x + offsetX*strokeWidth; // TODO: do offset correctly     
+          newPoint.x = targetPoint.x;
+          newPoint.offsetX = offsetX;
+          offsetX++;
+        }
+        
+        // line already exists
+        if (foundLine){
+          var transitionPoints = [];
+          
+          // add transition points
+          transitionPoints = that.getPointsBetween(prevPoint.x, prevPoint.y, newPoint.x, newPoint.y, pathTypes);
+          _.each(transitionPoints, function(tp){
+            foundLine.points.push(tp);
+          });
+          
+          // finally add new point
+          foundLine.points.push(newPoint);
+          
+        // line does not exist, add a new one
+        } else {          
+          var newLine = {
+                label: lineLabel,
+                color: colors[colorIndex].hex,
+                strokeWidth: strokeWidth,
+                points: []            
+              };
+          // add point to line, add line to lines
+          newLine.points.push(newPoint);
+          lines.push(newLine);
+          // increment color index
+          colorIndex++;
+          if (colorIndex>=colors.length)
+            colorIndex = 0;
+        }
+      });      
     });
     
-    return {
-      pathType1: pathType1,
-      pathType2: pathType2,
-      points: points
-    };
+    return lines;
   },
   
-  getPoint: function(x, y, pathType, noFollowDirection, width, height){
-    var j = 0,
-        limit = 50,
-        gridUnit = this.options.gridUnit,
-        canvasPadding = gridUnit,
-        minX = canvasPadding, minY = canvasPadding,
-        maxX = width - minX, maxY = height - minY,        
-        minSegLen = gridUnit,
-        maxSegLen = gridUnit*6,
-        _x = x, _y = y;        
-    do {        
-      // try a random direction
-      direction = _.sample(pathType.directions);
-      // try a random segment length    
-      var length = _.random(minSegLen, maxSegLen),
-          coords = this.translateCoordinates(x, y, direction, length);
-      _x = helper.roundToNearest(coords[0], gridUnit);
-      _y = helper.roundToNearest(coords[1], gridUnit);    
-      j++;
-    } while(
-      j <= limit && // prevent infinite loops
-      ( direction === noFollowDirection || // follow the noFollow rules
-       _x<minX || _x>maxX || _y<minY || _y>maxY ) // make sure within bounds
-    );
-    x = _x;
-    y = _y;    
-    // add new point
-    return {
-      direction1: direction,
-      direction2: false,
-      x: x,
-      y: y
-    };
+  getLengths: function(xDiff, yDiff, directions) {
+    var count = directions.length,
+        xCount = 0, yCount = 0, xyCount = 0,
+        xAvgLength = 0, yAvgLength = 0, minLength = 0,
+        xRemainder = 0, yRemainder = 0,
+        lengths = [];
+    
+    xDiff = Math.abs(xDiff);
+    
+    // count lines that change x
+    xCount = _.reduce(directions, function(memo, d){
+      if (d.indexOf("e")>=0 || d.indexOf("w")>=0) memo++;
+      return memo;
+    }, 0);
+    // count lines that change y
+    yCount = _.reduce(directions, function(memo, d){
+      if (d.indexOf("s")>=0) memo++;
+      return memo;
+    }, 0);
+    // count lines that change both xy
+    xyCount = _.reduce(directions, function(memo, d){
+      if (d.length>1) memo++;
+      return memo;
+    }, 0);
+    
+    // determine average lengths/remainders
+    if (xCount>0) {
+      xAvgLength = Math.floor(xDiff / xCount);
+      xRemainder = xDiff % xAvgLength;
+    }
+    if (yCount>0) {
+      yAvgLength = Math.floor(yDiff / yCount);
+      yRemainder = yDiff % yAvgLength;
+    }
+    minLength = _.min([xAvgLength, yAvgLength]);
+    
+    var xRemainderAdded = false,
+        yRemainderAdded = false;
+    _.each(directions, function(d){
+      // diagonal is always the min dimension length
+      if (d.length>1) {
+        lengths.push(minLength);
+        
+      // else if a diagonal exists
+      } else if (xyCount>0) {
+        
+        // vertical line
+        if (d.indexOf("s")>=0) {
+          lengths.push(yDiff-minLength);
+        // horizontal line
+        } else {
+          lengths.push(xDiff-minLength);
+        }
+        
+      } else {
+                
+        // vertical line
+        if (d.indexOf("s")>=0) {
+          // add remainder once
+          if (!yRemainderAdded) {            
+            lengths.push(yAvgLength+yRemainder);
+            yRemainderAdded = true;
+          } else {
+            lengths.push(yAvgLength);
+          }
+          
+        // horizontal line
+        } else {
+          // add remainder once
+          if (!xRemainderAdded) {            
+            lengths.push(xAvgLength+xRemainder);
+            xRemainderAdded = true;
+          } else {
+            lengths.push(xAvgLength);
+          }          
+        }
+        
+      }
+      
+    });
+    
+    return lengths;
+    
   },
   
-  textPosition: function(direction1, direction2) {
+  getNextX: function(boundaries, iterator, totalPoints, width, prevPoint){
+    var x = 0,
+        prevPadding = 0.2,
+        trendPadding = 0.3,
+        percentComplete = parseFloat(iterator/totalPoints),
+        // absolute min/max based on boundaries
+        absMinX = boundaries.minX,
+        absMaxX = boundaries.maxX,
+        // min/max based on general trend from left to right
+        trendMinX = percentComplete*width - Math.round(width*trendPadding),
+        trendMaxX = percentComplete*width + Math.round(width*trendPadding),
+        // create arrays
+        mins = [absMinX, trendMinX],
+        maxs = [absMaxX, trendMaxX];
+    
+    // make sure point is within x% of previous point
+    if (prevPoint) {
+      mins.push(prevPoint.x - Math.round(width*prevPadding));
+      maxs.push(prevPoint.x + Math.round(width*prevPadding));
+    }
+    
+    // determine the min/max
+    minX = _.max(mins);
+    maxX = _.min(maxs);
+    
+    // ensure no logic error
+    if (minX<maxX) {
+      x =  _.random(minX, maxX);
+    } else {
+      x =  _.random(maxX, minX);
+    }   
+    
+    return x;
+  },
+  
+  getPointsBetween: function(x1, y1, x2, y2, pathTypes) {
+    var that = this,
+        points = [],
+        gridUnit = 5,
+        yDiff = y2 - y1
+        xDiff = x2 - x1,
+        xDirection = false,
+        pathType = false,
+        // determine x/y units
+        xUnits = Math.floor(Math.abs(xDiff/gridUnit)),
+        yUnits = Math.floor(yDiff/gridUnit);
+        
+    // determine x direction 
+    if (xDiff>0) {
+      xDirection = "e";
+    } else if (xDiff<0) {
+      xDirection = "w";
+    }
+    
+    // ensure no zero x/y units
+    if (xDirection!==false && xUnits<=0) {
+      xUnits = 1;
+    }
+    if (yUnits<=0) {
+      yUnits = 1;
+    }
+    
+    // filter and choose random path type
+    pathTypes = _.filter(pathTypes, function(pt){
+      return pt.xDirection===xDirection 
+              && xUnits >= pt.minXUnit
+              && yUnits >= pt.minYUnit;
+    });    
+    pathType = _.sample(pathTypes);
+
+    // get points if path type exists
+    if (pathType && pathType.directions) {
+      // retrieve directions
+      var directions = pathType.directions;     
+      
+      // shuffle if necessary    
+      if (pathType.shuffle) {
+        directions = _.shuffle(directions);
+      }
+      
+      // retrieve points
+      var x = x1, y = y1,
+          lengths = that.getLengths(xDiff, yDiff, directions);
+      _.each(directions, function(direction, i){
+        var point = that.translateCoordinates(x, y, direction, lengths[i]);
+        x = point.x;
+        y = point.y;
+        point.direction1 = direction;
+        points.push(point);
+      });
+           
+      // remove last point since we just want the transition points
+      points.pop()
+    }   
+    
+    return points;
+  },
+  
+  getTextPosition: function(direction1, direction2) {
     var pos = 's',
         d1 = direction1, d2 = direction2;
     
@@ -325,10 +421,10 @@ app.views.MapsAddView = Backbone.View.extend({
         y_direction = -1; x_direction = -1;
         break;
     }
-    return [
-      x + length * x_direction,
-      y + length * y_direction
-    ];
+    return {
+      x: x + length * x_direction,
+      y: y + length * y_direction
+    };
   }
 
 });
