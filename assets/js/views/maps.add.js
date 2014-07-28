@@ -15,7 +15,7 @@ app.views.MapsAddView = Backbone.View.extend({
     lines = this.makeLines(points, width, height, options);
     
     // draw the svg map
-    this.drawMap(lines, width, height, pathInterpolation);
+    this.drawMap(lines, width, height, options);
     
     // activate pan-zoom
     this.panZoom($("#map-svg")); 
@@ -23,26 +23,44 @@ app.views.MapsAddView = Backbone.View.extend({
   
   drawDots: function(svg, dots) {
     svg.selectAll("dot")
-        .data(dots)
-        .enter().append("circle")
-        .attr("r", function(d) { return d.pointRadius; })
-        .attr("cx", function(d) { return d.x; })
-        .attr("cy", function(d) { return d.y; })
-        .style("fill", function(d){ return d.pointColor; })
-        .style("stroke", function(d){ return d.borderColor; })
-        .style("stroke-width", function(d){ return d.borderWidth; });
+      .data(dots)
+      .enter().append("circle")
+      .attr("r", function(d) { return d.pointRadius; })
+      .attr("cx", function(d) { return d.x; })
+      .attr("cy", function(d) { return d.y; })
+      .style("fill", function(d){ return d.pointColor; })
+      .style("stroke", function(d){ return d.borderColor; })
+      .style("stroke-width", function(d){ return d.borderWidth; });
   },
   
-  drawLabels: function(svg, labels) {
-    
+  drawLabels: function(svg, labels, options) {
+    var fontFamily = options.fontFamily,
+        textColor = options.textColor,
+        fontSize = options.fontSize;
+        
+    svg.selectAll("text")
+      .data(labels)
+      .enter().append("text")
+      .text( function (d) { return d.label; })
+      .attr("x", function(d) { return d.x - 10; })
+      .attr("y", function(d) { return d.y; })
+      .attr("text-anchor","end")
+      .attr("alignment-baseline","middle")     
+      .style("font-family", fontFamily)
+      .style("font-size", fontSize)
+      .style("font-weight", "bold")
+      .style("fill", textColor);
   },
   
   drawLegend: function(svg, lines) {
     
   },
   
-  drawLines: function(svg, lines, pathInterpolation) {
-    var svg_line = d3.svg.line()
+  drawLines: function(svg, lines, options) {
+    var pathInterpolation = options.pathInterpolation,
+        svg_line;
+        
+    svg_line = d3.svg.line()
       .interpolate(pathInterpolation)
       .x(function(d) { return d.x; })
       .y(function(d) { return d.y; });
@@ -57,9 +75,8 @@ app.views.MapsAddView = Backbone.View.extend({
     });
   },
   
-  drawMap: function(lines, width, height, pathInterpolation){
-    var svg,
-        points, dots, labels;
+  drawMap: function(lines, width, height, options){
+    var svg, points, dots, labels;
     
     // init svg and add to DOM
     svg = d3.select("#svg-wrapper")
@@ -74,9 +91,9 @@ app.views.MapsAddView = Backbone.View.extend({
     labels = _.filter(points, function(p){ return p.label !== undefined; });
     
     // draw lines, dots, labels, and legend
-    this.drawLines(svg, lines, pathInterpolation);    
+    this.drawLines(svg, lines, options);    
     this.drawDots(svg, dots);    
-    this.drawLabels(svg, labels);    
+    this.drawLabels(svg, labels, options);    
     this.drawLegend(svg, lines);
   },
   
@@ -242,47 +259,6 @@ app.views.MapsAddView = Backbone.View.extend({
     }   
     
     return points;
-  },
-  
-  getTextPosition: function(direction1, direction2) {
-    var pos = 's',
-        d1 = direction1, d2 = direction2;
-    
-    // first segment
-    if (!d1) {
-      if (_.indexOf(['e','se','s','sw','w'], d2) >= 0) pos = 'n';
-    // last segment
-    } else if (!d2) {
-      if (_.indexOf(['n','ne','e','w','nw'], d1) >= 0) pos = 'n';
-    // two segments   
-    } else {
-      if (d1==='n') {
-        if (_.indexOf(['n','ne'], d2) >= 0) pos = 'w';
-        else if (_.indexOf(['e','w'], d2) >= 0) pos = 'n';
-        else if (_.indexOf(['nw'], d2) >= 0) pos = 'e';
-      } else if (d1==='ne') {
-        if (_.indexOf(['n','ne','nw'], d2) >= 0) pos = 'e';
-        else if (_.indexOf(['e','se'], d2) >= 0) pos = 'n';
-      } else if (d1==='e') {
-        if (_.indexOf(['se','s'], d2) >= 0) pos = 'n';
-      } else if (d1==='se') {
-        if (_.indexOf(['se'], d2) >= 0) pos = 'w';
-        else if (_.indexOf(['s','sw'], d2) >= 0) pos = 'e';
-      } else if (d1==='s') {
-        if (_.indexOf(['se','s'], d2) >= 0) pos = 'w';
-        else if (_.indexOf(['sw'], d2) >= 0) pos = 'e';
-      } else if (d1==='sw') {
-        if (_.indexOf(['sw'], d2) >= 0) pos = 'e';
-        else if (_.indexOf(['se','s'], d2) >= 0) pos = 'w';
-      } else if (d1==='w') {
-        if (_.indexOf(['s','sw'], d2) >= 0) pos = 'n';
-      } else if (d1==='nw') {
-        if (_.indexOf(['n','ne','nw'], d2) >= 0) pos = 'w';
-        else if (_.indexOf(['sw','w'], d2) >= 0) pos = 'n';
-      }
-    }
-    
-    return pos;
   },
   
   makeLines: function(points, width, height, options){
