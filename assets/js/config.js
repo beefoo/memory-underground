@@ -1,6 +1,7 @@
 var config = {
   "width": 2400,
   "height": 3600,
+  "bgColor": "#f2e9b8",
   "padding": [200, 200],  
   "textColor": "#000000",  
   "fontFamily": "sans-serif",

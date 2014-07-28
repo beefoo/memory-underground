@@ -18,8 +18,27 @@ app.views.MapsAddView = Backbone.View.extend({
     this.drawMap(lines, width, height, options);
     
     // activate pan-zoom
-    this.panZoom($("#map-svg")); 
-  }, 
+    this.panZoom($("#map-svg"));
+    
+    // add listeners
+    this.addListeners();
+  },
+  
+  addListeners: function(){
+    var that = this;
+    
+    // keyboard listeners
+    $(document).on('keydown', function(e){        
+      switch(e.keyCode) {
+        // o - output to json
+        case 79:
+          if (e.ctrlKey) that.exportSVG();
+          break;
+        default:
+          break;
+      }
+    });
+  },
   
   drawDots: function(svg, dots) {
     svg.selectAll("dot")
@@ -76,14 +95,21 @@ app.views.MapsAddView = Backbone.View.extend({
   },
   
   drawMap: function(lines, width, height, options){
-    var svg, points, dots, labels;
+    var bgColor = options.bgColor,
+        svg, points, dots, labels;
     
     // init svg and add to DOM
     svg = d3.select("#svg-wrapper")
-            .append("svg")
-            .attr("id", "map-svg")
-            .attr("width", width)
-            .attr("height", height);
+      .append("svg")
+      .attr("id", "map-svg")
+      .attr("width", width)
+      .attr("height", height);
+    
+    // give it a background color 
+    svg.append("rect")
+      .attr("width", "100%")
+      .attr("height", "100%")
+      .attr("fill", bgColor);
             
     // extract points, dots, labels from lines
     points = _.flatten( _.pluck(lines, "points") );
