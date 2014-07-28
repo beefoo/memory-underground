@@ -5,114 +5,78 @@ app.views.MapsAddView = Backbone.View.extend({
   initialize: function(options) {
     var points = options.points,
         width = options.width,
-        height = options.height;
+        height = options.height,
+        pathInterpolation = options.pathInterpolation,
+        lines = [], line_segments = [];
     
     points = this.processPoints(points);
     
     // generate lines with points
-    var lines = this.generateLines(points, width, height, options);
-    
-    //this.drawSandbox();
+    lines = this.makeLines(points, width, height, options);
     
     // draw the svg map
-    this.drawMap(lines, width, height);
-    this.initPanZoom($("#map-svg")); 
-  },
-  
-  initPanZoom: function($selector){    
-    var $panzoom = $selector.panzoom();    
-    $panzoom.parent().on('mousewheel.focal', function( e ) {
-      e.preventDefault();
-      var delta = e.delta || e.originalEvent.wheelDelta;
-      var zoomOut = delta ? delta < 0 : e.originalEvent.deltaY > 0;
-      $panzoom.panzoom('zoom', zoomOut, {
-        increment: 0.1,
-        animate: false,
-        focal: e
-      });
-    });
-  },
-  
-  drawSandbox: function(){
-    var svg = d3.select("#svg-wrapper")
-      .append("svg")
-      .attr("id", "map-svg")
-      .attr("width", 800)
-      .attr("height", 600);
-
-    var svg_line = d3.svg.line()
-      // .interpolate("monotone")
-      .x(function(d) { return d.x; })
-      .y(function(d) { return d.y; });
-      
-    var svg_curve = d3.svg.line()
-      .interpolate("basis")
-      .x(function(d) { return d.x; })
-      .y(function(d) { return d.y; });
-
-    var path = svg.append("path")
-      .attr("d", svg_line([{x: 10, y: 10},{x: 100, y: 10},{x: 200, y: 10}]))
-      .style("stroke", "red")
-      .style("stroke-width", 10)
-      .style("stroke-linecap", "round")
-      .style("stroke-linejoin", "round")
-      .style("fill", "none");
-      
-    var path2 = svg.append("path")
-      .attr("d", svg_curve([{x: 200, y: 10},{x: 300, y: 10},{x: 300, y: 110}]))
-      .style("stroke", "red")
-      .style("stroke-width", 10)
-      .style("stroke-linecap", "round")
-      .style("stroke-linejoin", "round")
-      .style("fill", "none");
-      
-    var path3 = svg.append("path")
-      .attr("d", svg_line([{x: 300, y: 110},{x: 300, y: 210},{x: 300, y: 310}]))
-      .style("stroke", "red")
-      .style("stroke-width", 10)
-      .style("stroke-linecap", "round")
-      .style("stroke-linejoin", "round")
-      .style("fill", "none"); 
-
-  },
-  
-  drawMap: function(lines, width, height){
-    var svg = d3.select("#svg-wrapper")
-      .append("svg")
-      .attr("id", "map-svg")
-      .attr("width", width)
-      .attr("height", height);
-
-    var svg_line = d3.svg.line()
-      // .interpolate("monotone")
-      .x(function(d) { return d.x; })
-      .y(function(d) { return d.y; });
+    this.drawMap(lines, width, height, pathInterpolation);
     
-    var labels = [], dots = [];
-    _.each(lines, function(line){
-      // console.log(line.points)
-      svg.append("path")
-        .attr("d", svg_line(line.points))
-        .style("stroke", line.color)
-        .style("stroke-width", line.strokeWidth)
-        .style("stroke-linecap", "round")
-        .style("stroke-linejoin", "round")
-        .style("fill", "none");
-      
-      var line_labels = _.filter(line.points, function(p){ return p.label !== undefined; }),
-          line_dots = _.filter(line.points, function(p){ return p.pointRadius && p.pointRadius > 0; });
-      labels = _.union(labels, line_labels);
-      dots = _.union(dots, line_dots);     
-    });
-    
-    // add dots and labels
+    // activate pan-zoom
+    this.panZoom($("#map-svg")); 
+  }, 
+  
+  drawDots: function(svg, dots) {
     svg.selectAll("dot")
         .data(dots)
         .enter().append("circle")
         .attr("r", function(d) { return d.pointRadius; })
         .attr("cx", function(d) { return d.x; })
         .attr("cy", function(d) { return d.y; })
-        .style("fill", function(d){ return d.pointColor; });
+        .style("fill", function(d){ return d.pointColor; })
+        .style("stroke", function(d){ return d.borderColor; })
+        .style("stroke-width", function(d){ return d.borderWidth; });
+  },
+  
+  drawLabels: function(svg, labels) {
+    
+  },
+  
+  drawLegend: function(svg, lines) {
+    
+  },
+  
+  drawLines: function(svg, lines, pathInterpolation) {
+    var svg_line = d3.svg.line()
+      .interpolate(pathInterpolation)
+      .x(function(d) { return d.x; })
+      .y(function(d) { return d.y; });
+      
+    _.each(lines, function(line){
+      svg.append("path")
+        .attr("d", svg_line(line.points))
+        .style("stroke", line.color)
+        .style("stroke-width", line.strokeWidth)
+        .style("fill", "none");          
+    });
+  },
+  
+  drawMap: function(lines, width, height, pathInterpolation){
+    var svg,
+        points, dots, labels;
+    
+    // init svg and add to DOM
+    svg = d3.select("#svg-wrapper")
+            .append("svg")
+            .attr("id", "map-svg")
+            .attr("width", width)
+            .attr("height", height);
+            
+    // extract points, dots, labels from lines
+    points = _.flatten( _.pluck(lines, "points") );
+    dots = _.filter(points, function(p){ return p.pointRadius && p.pointRadius > 0; });
+    labels = _.filter(points, function(p){ return p.label !== undefined; });
+    
+    // draw lines, dots, labels, and legend
+    this.drawLines(svg, lines, pathInterpolation);    
+    this.drawDots(svg, dots);    
+    this.drawLabels(svg, labels);    
+    this.drawLegend(svg, lines);
   },
   
   exportSVG: function(){    
@@ -123,128 +87,6 @@ app.views.MapsAddView = Backbone.View.extend({
     window.open(data_url, '_blank');
     
     // $("body").append($("<img src='data:image/svg+xml;base64,\n"+b64+"' alt='file.svg'/>"));
-  },
-  
-  generateLines: function(points, width, height, options){
-    var that = this,
-        // options
-        paddingX = options.padding[0],
-        paddingY = options.padding[1],
-        colors = options.colors,
-        pathTypes = options.pathTypes,
-        strokeWidth = options.strokeWidth,
-        pointRadius = options.pointRadius,
-        pointColor = options.pointColor,
-        minXDiff = options.minXDiff,
-        // calculations
-        activeW = width - paddingX*2,
-        activeH = height - paddingY*2,
-        boundaries = {minX: paddingX, minY: paddingY, maxX: width-paddingX, maxY: height-paddingY},
-        pointCount = points.length,
-        yUnit = Math.floor(activeH/pointCount),
-        // initializers
-        lines = [],
-        prevLines = [],
-        colorIndex = 0;
-    
-    // ensure y-unit is 2 or more
-    if (yUnit<2) yUnit = 2;
-    
-    // loop through points
-    _.each(points, function(point, i){
-      var nextY = paddingY + i * yUnit, // next available yUnit
-          nextX = that.getNextX(boundaries, i, pointCount, activeW, minXDiff), // random x
-          lineCount = point.lines.length,
-          firstX = nextX;
-          
-      // loop through point's lines
-      _.each(point.lines, function(lineLabel, j){
-        // if line already exists
-        var foundLine = _.findWhere(lines, {label: lineLabel}),
-            prevPoint = false, newPoint;
-        
-        // retieve previous point
-        if (foundLine) {
-          prevPoint = _.last(foundLine.points); 
-        }
-        
-        // if line is in previous lines, it will be straight
-        if (prevLines.indexOf(lineLabel)>=0 && prevPoint) {
-          nextX = prevPoint.x;
-        
-        // if line already exists, make sure X is within 20% of previous X
-        } else if (prevPoint) {                   
-          nextX = that.getNextX(boundaries, i, pointCount, activeW, minXDiff, prevPoint);
-        }
-        
-        // init new point
-        newPoint = {
-          id: _.uniqueId('p'),
-          x: nextX,
-          y: nextY,
-          pointRadius: pointRadius,
-          pointColor: pointColor,
-          lineLabel: lineLabel
-        };
-            
-        // for first line, just add target point
-        if (j===0) {
-          firstX = newPoint.x;
-          newPoint.label = point.label; // only the target point of the first line gets label
-          
-        // for additional new lines, place first point next to the first line's target point plus offset
-        } else {
-          newPoint.x = firstX + j*strokeWidth;
-        }
-        
-        // line already exists
-        if (foundLine){
-          var transitionPoints = [],
-              lastPoint;          
-
-          // retrieve transition points
-          transitionPoints = that.getPointsBetween(prevPoint, newPoint, pathTypes);          
-          
-          // add direction2 to previous point
-          if (transitionPoints.length > 0 && foundLine.points.length > 0) {
-            lastPoint = _.last(foundLine.points);
-            lastPoint.direction2 = transitionPoints[0].direction1;
-          }
-
-          // add transition points          
-          _.each(transitionPoints, function(tp){
-            foundLine.points.push(tp);
-          });
-          
-          // update last point with meta data
-          lastPoint = _.last(foundLine.points);
-          lastPoint = _.extend(lastPoint, newPoint);          
-          
-        // line does not exist, add a new one
-        } else {          
-          var newLine = {
-                label: lineLabel,
-                color: colors[colorIndex].hex,
-                strokeWidth: strokeWidth,
-                points: []            
-              };
-          // add point to line, add line to lines
-          newLine.points.push(newPoint);
-          lines.push(newLine);
-          // increment color index
-          colorIndex++;
-          if (colorIndex>=colors.length)
-            colorIndex = 0;
-        }
-        
-      });
-      
-      prevLines = point.lines;     
-    });
-    
-    // console.log(lines)
-    
-    return lines;
   },
   
   getLengths: function(xDiff, yDiff, directions) {
@@ -313,7 +155,7 @@ app.views.MapsAddView = Backbone.View.extend({
     return x;
   },
   
-  getPointsBetween: function(p1, p2, pathTypes) {
+  getPointsBetween: function(p1, p2, pathTypes, cornerRadius) {
     var that = this,
         points = [],
         x1 = p1.x, y1 = p1.y,
@@ -342,16 +184,40 @@ app.views.MapsAddView = Backbone.View.extend({
       // retrieve directions
       var directions = pathType.directions;
       
-      // retrieve points
+      // retrieve lengths
       var x = x1, y = y1,
           lengths = that.getLengths(xDiff, yDiff, directions);
+          
+      // generate points
       _.each(directions, function(direction, i){
-        var point = that.translateCoordinates(x, y, direction, lengths[i]);
+        var length = lengths[i],
+            point = that.translateCoordinates(x, y, direction, length),
+            pointR1 = false, pointR2 = false;
+            
         x = point.x;
-        y = point.y;
+        y = point.y;        
         point.id = _.uniqueId('p');
         point.direction1 = direction;
-        points.push(point);
+        
+        // add points in/out if corner radius
+        if (cornerRadius>0 && cornerRadius < length/2) {
+          if (direction=="s") {
+            pointR1 = { x: x, y: y-length+cornerRadius };
+            pointR2 = { x: x, y: y-cornerRadius };
+          } else if (direction=="e") {
+            pointR1 = { x: x-length+cornerRadius, y: y };
+            pointR2 = { x: x-cornerRadius, y: y };
+          } else {
+            pointR1 = { x: x+length-cornerRadius, y: y };
+            pointR2 = { x: x+cornerRadius, y: y };
+          }
+        }
+        
+        // add points
+        if (pointR1) points.push(pointR1);
+        if (pointR2) points.push(pointR2);
+        points.push(point);        
+        
         // add direction out
         if (i>0) {
           points[i-1].direction2 = direction;
@@ -418,6 +284,153 @@ app.views.MapsAddView = Backbone.View.extend({
     return pos;
   },
   
+  makeLines: function(points, width, height, options){
+    var that = this,
+        // options
+        paddingX = options.padding[0],
+        paddingY = options.padding[1],
+        colors = options.colors,
+        pathTypes = options.pathTypes,
+        strokeWidth = options.strokeWidth,
+        offsetWidth = options.offsetWidth,
+        pointRadius = options.pointRadius,
+        pointRadiusLarge = options.pointRadiusLarge,
+        pointColor = options.pointColor,
+        borderColor = options.borderColor,
+        borderWidth = options.borderWidth,
+        cornerRadius = options.cornerRadius,
+        minXDiff = options.minXDiff,
+        // calculations
+        activeW = width - paddingX*2,
+        activeH = height - paddingY*2,
+        boundaries = {minX: paddingX, minY: paddingY, maxX: width-paddingX, maxY: height-paddingY},
+        pointCount = points.length,
+        yUnit = Math.floor(activeH/pointCount),
+        // initializers
+        lines = [],
+        prevLines = [],
+        colorIndex = 0;
+    
+    // ensure y-unit is 2 or more
+    if (yUnit<2) yUnit = 2;
+    
+    // loop through points
+    _.each(points, function(point, i){
+      var nextY = paddingY + i * yUnit, // next available yUnit
+          nextX = that.getNextX(boundaries, i, pointCount, activeW, minXDiff), // random x
+          lineCount = point.lines.length,
+          firstX = nextX;
+          
+      // loop through point's lines
+      _.each(point.lines, function(lineLabel, j){
+        // if line already exists
+        var foundLine = _.findWhere(lines, {label: lineLabel}),
+            prevPoint = false, newPoint;
+        
+        // retieve previous point
+        if (foundLine) {
+          prevPoint = _.last(foundLine.points); 
+        }
+        
+        // if line is in previous lines, it will be straight
+        if (prevLines.indexOf(lineLabel)>=0 && prevPoint) {
+          nextX = prevPoint.x;
+        
+        // if line already exists, make sure X is within 20% of previous X
+        } else if (prevPoint) {                   
+          nextX = that.getNextX(boundaries, i, pointCount, activeW, minXDiff, prevPoint);
+        }
+        
+        // init new point
+        newPoint = {
+          id: _.uniqueId('p'),
+          x: nextX,
+          y: nextY,
+          pointRadius: pointRadius,
+          pointColor: pointColor,
+          borderColor: borderColor,
+          borderWidth: borderWidth,
+          lineLabel: lineLabel
+        };
+            
+        // for first line, just add target point
+        if (j===0) {
+          firstX = newPoint.x;
+          newPoint.label = point.label; // only the target point of the first line gets label
+          
+        // for additional new lines, place first point next to the first line's target point plus offset
+        } else {
+          newPoint.x = firstX + j*offsetWidth;
+        }
+        
+        // line already exists
+        if (foundLine){
+          var transitionPoints = [],
+              lastPoint;          
+
+          // retrieve transition points
+          transitionPoints = that.getPointsBetween(prevPoint, newPoint, pathTypes, cornerRadius);          
+          
+          // add direction2 to previous point
+          if (transitionPoints.length > 0 && foundLine.points.length > 0) {
+            lastPoint = _.last(foundLine.points);
+            lastPoint.direction2 = transitionPoints[0].direction1;
+          }
+
+          // add transition points          
+          _.each(transitionPoints, function(tp){
+            foundLine.points.push(tp);
+          });
+          
+          // update last point with meta data
+          lastPoint = _.last(foundLine.points);
+          lastPoint = _.extend(lastPoint, newPoint);          
+          
+        // line does not exist, add a new one
+        } else {          
+          var newLine = {
+                label: lineLabel,
+                color: colors[colorIndex].hex,
+                strokeWidth: strokeWidth,
+                points: []            
+              };
+          // big dot if first point and is alone
+          if (lineCount <= 1) {
+            newPoint.pointRadius = pointRadiusLarge;
+          }
+          // add point to line, add line to lines
+          newLine.points.push(newPoint);
+          lines.push(newLine);
+          // increment color index
+          colorIndex++;
+          if (colorIndex>=colors.length)
+            colorIndex = 0;
+        }
+        
+      });
+      
+      prevLines = point.lines;     
+    });
+    
+    // console.log(lines)
+    
+    return lines;
+  },
+  
+  panZoom: function($selector){    
+    var $panzoom = $selector.panzoom();    
+    $panzoom.parent().on('mousewheel.focal', function( e ) {
+      e.preventDefault();
+      var delta = e.delta || e.originalEvent.wheelDelta;
+      var zoomOut = delta ? delta < 0 : e.originalEvent.deltaY > 0;
+      $panzoom.panzoom('zoom', zoomOut, {
+        increment: 0.1,
+        animate: false,
+        focal: e
+      });
+    });
+  },
+  
   processPoints: function(points){
     // sort all the lines consistently
     var lineLabels = _.uniq( _.flatten( _.pluck(points, 'lines') ) );    
@@ -431,29 +444,14 @@ app.views.MapsAddView = Backbone.View.extend({
     var x_direction = 0, y_direction = 0;
     
     switch(direction){
-      case 'n':
-        y_direction = -1;
-        break;
-      case 'ne':
-        y_direction = -1; x_direction = 1;
-        break;
       case 'e':
         x_direction = 1;
-        break;
-      case 'se':
-        y_direction = 1; x_direction = 1;
         break;
       case 's':
         y_direction = 1;
         break;
-      case 'sw':
-        y_direction = 1; x_direction = -1;
-        break;
       case 'w':
         x_direction = -1;
-        break;
-      case 'nw':
-        y_direction = -1; x_direction = -1;
         break;
     }
     return {

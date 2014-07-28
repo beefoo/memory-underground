@@ -9,11 +9,17 @@ var config = {
   "maxPointsPerLine": 32,
   "minTextLength": 1,
   "maxTextLength": 24,
-  "pathStyle": "straight", // smooth, straight  
+  "pathInterpolation": "basis", // linear, basis, cardinal, monotone
   "pointColor": "#ffffff",
-  "pointColorInverse": "#ffffff",
-  "pointRadius": 3,
-  "strokeWidth": 10,
+  "pointColorInverse": "#444444",
+  "borderColor": "#444444",
+  "borderColorInverse": "#ffffff",  
+  "borderWidth": 2,
+  "cornerRadius": 40,
+  "pointRadius": 4,
+  "pointRadiusLarge": 7,
+  "strokeWidth": 8,
+  "offsetWidth": 10,
   "minXDiff": 5,
   "colors": [
     {"hex":"#e11002","group":"red"},
