@@ -154,7 +154,8 @@ app.views.MapsAddView = Backbone.View.extend({
       var nextY = paddingY + i * yUnit, // next available yUnit
           nextX = that.getNextX(boundaries, i, pointCount, activeW, minXDiff), // random x
           lineCount = point.lines.length,
-          firstX = nextX;
+          firstX = nextX,
+          prevLines = [];
           
       // loop through point's lines
       _.each(point.lines, function(lineLabel, j){
@@ -167,8 +168,8 @@ app.views.MapsAddView = Backbone.View.extend({
           prevPoint = _.last(foundLine.points); 
         }
         
-        // if first line in group, it will be straight
-        if (j===0 && lineCount>1 && prevPoint) {
+        // if line is in previous lines, it will be straight
+        if (prevLines.indexOf(lineLabel)>=0 && prevPoint) {
           nextX = prevPoint.x;
         
         // if line already exists, make sure X is within 20% of previous X
@@ -236,7 +237,9 @@ app.views.MapsAddView = Backbone.View.extend({
             colorIndex = 0;
         }
         
-      });      
+      });
+      
+      prevLines = point.lines;     
     });
     
     // console.log(lines)
