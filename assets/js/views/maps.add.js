@@ -144,6 +144,7 @@ app.views.MapsAddView = Backbone.View.extend({
         yUnit = Math.floor(activeH/pointCount),
         // initializers
         lines = [],
+        prevLines = [],
         colorIndex = 0;
     
     // ensure y-unit is 2 or more
@@ -154,8 +155,7 @@ app.views.MapsAddView = Backbone.View.extend({
       var nextY = paddingY + i * yUnit, // next available yUnit
           nextX = that.getNextX(boundaries, i, pointCount, activeW, minXDiff), // random x
           lineCount = point.lines.length,
-          firstX = nextX,
-          prevLines = [];
+          firstX = nextX;
           
       // loop through point's lines
       _.each(point.lines, function(lineLabel, j){
