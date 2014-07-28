@@ -52,6 +52,7 @@ app.views.MapsAddView = Backbone.View.extend({
         .attr("d", svg_line(line.points))
         .style("stroke", line.color)
         .style("stroke-width", line.strokeWidth)
+        .style("stroke-opacity", line.strokeOpacity)
         .style("fill", "none");          
     });
   },
@@ -199,8 +200,8 @@ app.views.MapsAddView = Backbone.View.extend({
         point.id = _.uniqueId('p');
         point.direction1 = direction;
         
-        // add points in/out if corner radius
-        if (cornerRadius>0 && cornerRadius < length/2) {
+        // add transition points if corner radius
+        if (cornerRadius>0 && cornerRadius<length/2) {
           if (direction=="s") {
             pointR1 = { x: x, y: y-length+cornerRadius };
             pointR2 = { x: x, y: y-cornerRadius };
@@ -292,6 +293,7 @@ app.views.MapsAddView = Backbone.View.extend({
         colors = options.colors,
         pathTypes = options.pathTypes,
         strokeWidth = options.strokeWidth,
+        strokeOpacity = options.strokeOpacity,
         offsetWidth = options.offsetWidth,
         pointRadius = options.pointRadius,
         pointRadiusLarge = options.pointRadiusLarge,
@@ -392,6 +394,7 @@ app.views.MapsAddView = Backbone.View.extend({
                 label: lineLabel,
                 color: colors[colorIndex].hex,
                 strokeWidth: strokeWidth,
+                strokeOpacity: strokeOpacity,
                 points: []            
               };
           // big dot if first point and is alone

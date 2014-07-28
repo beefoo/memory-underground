@@ -19,6 +19,7 @@ var config = {
   "pointRadius": 4,
   "pointRadiusLarge": 7,
   "strokeWidth": 8,
+  "strokeOpacity": 0.8,
   "offsetWidth": 10,
   "minXDiff": 5,
   "colors": [
