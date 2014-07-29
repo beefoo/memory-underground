@@ -22,7 +22,7 @@ var config = {
   "pointRadiusLarge": 10,
   "strokeWidth": 8,
   "strokeOpacity": 0.8,
-  "offsetWidth": 10,
+  "offsetWidth": 12,
   "minXDiff": 5,
   "colors": [
     {"hex":"#e11002","group":"red"},

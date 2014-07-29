@@ -7,12 +7,14 @@ app.views.MapsAddView = Backbone.View.extend({
         width = options.width,
         height = options.height,
         pathInterpolation = options.pathInterpolation,
-        lines = [], line_segments = [];
+        lines = [], endLines = [];
     
     points = this.processPoints(points);
     
     // generate lines with points
     lines = this.makeLines(points, width, height, options);
+    endLines = this.makeEndLines(lines, options);
+    lines = _.union(lines, endLines);
     
     // draw the svg map
     this.drawMap(lines, width, height, options);
@@ -22,6 +24,25 @@ app.views.MapsAddView = Backbone.View.extend({
     
     // add listeners
     this.addListeners();
+  },
+  
+  addDotStyles: function(dots, options){
+    var pointColor = options.pointColor,
+        borderColor = options.borderColor,
+        borderWidth = options.borderWidth;    
+    
+    _.each(dots, function(dot){
+      if (dot.symbol){
+        dot.borderColor = dot.pointColor;
+        dot.borderWidth = borderWidth;
+      } else {
+        dot.pointColor = pointColor;
+        dot.borderColor = borderColor;
+        dot.borderWidth = borderWidth;
+      }
+    });
+    
+    return dots;
   },
   
   addLabelStyles: function(labels, options){
@@ -40,7 +61,8 @@ app.views.MapsAddView = Backbone.View.extend({
         label.fontWeight = "bold";
         label.anchor = "middle"; 
         label.text = label.symbol;
-        label.offsetX = 0;       
+        label.offsetX = 0;
+        label.offsetY = 1;  
       // label
       } else {
         label.textColor = textColor;
@@ -48,11 +70,34 @@ app.views.MapsAddView = Backbone.View.extend({
         label.fontWeight = fontWeight;
         label.anchor = "end";
         label.text = label.label;
-        label.offsetX = -10;   
+        label.offsetX = -10;
+        label.offsetY = 0; 
       }
     });
     
     return labels;
+  },
+  
+  addLineStyles: function(lines, options){
+    var strokeOpacity = options.strokeOpacity,
+        strokeWidth = options.strokeWidth;
+    
+    _.each(lines, function(line){
+      line.strokeOpacity = strokeOpacity;
+      // symbol    
+      if (line.type=="symbol") {
+        line.color = "#aaaaaa";   
+        line.strokeWidth = 2;
+        line.strokeDash = "2,2";
+   
+      // normal line
+      } else {
+        line.strokeWidth = strokeWidth;
+        line.strokeDash = "none";
+      }
+    });
+    
+    return lines;
   },
   
   addListeners: function(){
@@ -83,38 +128,13 @@ app.views.MapsAddView = Backbone.View.extend({
       .style("stroke-width", function(d){ return d.borderWidth; });
   },
   
-  drawEndLines: function(svg, lines, options){
-    var that = this,
-        pathInterpolation = options.pathInterpolation,
-        svg_line;
-    
-    svg_line = d3.svg.line()
-      .interpolate(pathInterpolation)
-      .x(function(d) { return d.x; })
-      .y(function(d) { return d.y; });
-    
-    // draw line segments at the beginning and end
-    _.each(lines, function(line){
-      var segments = that.getEndLineSegments(line.points);
-      _.each(segments, function(segment){
-        svg.append("path")
-          .attr("d", svg_line(segment))
-          .style("stroke", "#aaaaaa")
-          .style("stroke-width", 2)
-          .style("stroke-dasharray", "2,2")
-          .style("stroke-opacity", line.strokeOpacity)
-          .style("fill", "none"); 
-      });               
-    });
-  },
-  
   drawLabels: function(svg, labels, options) {        
     svg.selectAll("text")
       .data(labels)
       .enter().append("text")
       .text( function (d) { return d.text; })
       .attr("x", function(d) { return d.x + d.offsetX; })
-      .attr("y", function(d) { return d.y; })
+      .attr("y", function(d) { return d.y + d.offsetY; })
       .attr("text-anchor",function(d){ return d.anchor; })
       .attr("alignment-baseline",function(d){ return d.alignment; })     
       .style("font-family", function(d){ return d.fontFamily; })
@@ -138,12 +158,13 @@ app.views.MapsAddView = Backbone.View.extend({
       .y(function(d) { return d.y; });
       
     _.each(lines, function(line){
-      var points = that.getMainLinePoints(line.points);
+      var points = line.points;
       svg.append("path")
         .attr("d", svg_line(points))
         .style("stroke", line.color)
         .style("stroke-width", line.strokeWidth)
         .style("stroke-opacity", line.strokeOpacity)
+        .style("stroke-dasharray", line.strokeDash)
         .style("fill", "none");          
     });
   },
@@ -167,13 +188,16 @@ app.views.MapsAddView = Backbone.View.extend({
             
     // extract points, dots, labels from lines
     points = _.flatten( _.pluck(lines, "points") );
-    dots = _.filter(points, function(p){ return p.pointRadius && p.pointRadius > 0; });
+    dots = _.filter(points, function(p){ return p.pointRadius && p.pointRadius > 0; });    
     labels = _.filter(points, function(p){ return p.label !== undefined || p.symbol !== undefined; });
+    
+    // add styles
+    lines = this.addLineStyles(lines, options);
+    dots = this.addDotStyles(dots, options);
     labels = this.addLabelStyles(labels, options);
     
     // draw lines, dots, labels, and legend
     this.drawLines(svg, lines, options);
-    this.drawEndLines(svg, lines, options); 
     this.drawDots(svg, dots);     
     this.drawLabels(svg, labels, options);  
     this.drawLegend(svg, lines);
@@ -195,14 +219,6 @@ app.views.MapsAddView = Backbone.View.extend({
       i = i % lines.length;
     }
     return colors[i];
-  },
-  
-  getEndLineSegments: function(points){
-    var range = this.getMainLineRange(points),
-        startPoints = points.slice(0, range[0]+1),
-        endPoints = points.slice(range[1]-1);
-    
-    return [startPoints, endPoints];
   },
   
   getLengths: function(xDiff, yDiff, directions) {
@@ -229,34 +245,6 @@ app.views.MapsAddView = Backbone.View.extend({
     
     return lengths;
     
-  },
-  
-  getMainLinePoints: function(points){
-    var range = this.getMainLineRange(points);
-    
-    return points.slice(range[0], range[1]);
-  },
-  
-  getMainLineRange: function(points){
-    var indexStart, indexEnd;
-    
-    // find start index
-    for(var i=0; i<points.length; i++) {
-      if (points[i].pointRadius && !points[i].symbol) {
-        indexStart = i;
-        break;
-      }
-    }
-    
-    // find end index
-    for(var j=points.length-1; j>=0; j--) {
-      if (points[j].pointRadius && !points[j].symbol) {
-        indexEnd = j + 1;
-        break;
-      }
-    }
-    
-    return [indexStart, indexEnd];
   },
   
   getNextX: function(boundaries, iterator, totalPoints, width, minXDiff, prevPoint){
@@ -407,6 +395,66 @@ app.views.MapsAddView = Backbone.View.extend({
     return symbol;
   },
   
+  makeEndLines: function(lines, options){
+    var pointRadiusLarge = options.pointRadiusLarge,
+        lineLength = pointRadiusLarge * 2 + 10,
+        endLines = [],
+        yHash = {};
+        
+    _.each(lines, function(line, i){
+      var firstPoint = line.points[0],
+          lastPoint = line.points[line.points.length-1],
+          lineStart = { type: 'symbol', points: [] },
+          lineEnd = { type: 'symbol', points: [] },
+          fpId = 'p'+firstPoint.y,
+          lpId = 'p'+lastPoint.y;
+      
+      // keep track of existing y points
+      if (yHash[fpId]!==undefined) {
+        yHash[fpId]++;
+      } else {
+        yHash[fpId] = 0;
+      }
+      if (yHash[lpId]!==undefined) {
+        yHash[lpId]++;
+      } else {
+        yHash[lpId] = 0;
+      }
+      
+      // add start line
+      lineStart.points.push({
+        x: firstPoint.x,
+        y: firstPoint.y - lineLength - yHash[fpId]%2*lineLength, // stagger y's that are next to each other
+        symbol: line.symbol,
+        pointColor: line.color,
+        pointRadius: pointRadiusLarge
+      });
+      lineStart.points.push({
+        x: firstPoint.x,
+        y: firstPoint.y
+      });
+          
+      // make end line
+      lineEnd.points.push({
+        x: lastPoint.x,
+        y: lastPoint.y
+      });
+      lineEnd.points.push({
+        x: lastPoint.x,
+        y: lastPoint.y + lineLength + yHash[lpId]%2*lineLength, // stagger y's that are next to each other
+        symbol: line.symbol,
+        pointColor: line.color,
+        pointRadius: pointRadiusLarge
+      });
+      
+      // add end lines
+      endLines.push(lineStart, lineEnd);      
+      
+    });
+    
+    return endLines;
+  },
+  
   makeLines: function(points, width, height, options){
     var that = this,
         // options
@@ -414,16 +462,10 @@ app.views.MapsAddView = Backbone.View.extend({
         paddingY = options.padding[1],
         colors = options.colors,
         pathTypes = options.pathTypes,
-        strokeWidth = options.strokeWidth,
-        strokeOpacity = options.strokeOpacity,
-        offsetWidth = options.offsetWidth,
-        pointRadius = options.pointRadius,
-        pointRadiusLarge = options.pointRadiusLarge,
-        pointColor = options.pointColor,
-        borderColor = options.borderColor,
-        borderWidth = options.borderWidth,
+        offsetWidth = options.offsetWidth,        
         cornerRadius = options.cornerRadius,
         minXDiff = options.minXDiff,
+        pointRadius = options.pointRadius,
         // calculations
         activeW = width - paddingX*2,
         activeH = height - paddingY*2,
@@ -469,11 +511,8 @@ app.views.MapsAddView = Backbone.View.extend({
           id: _.uniqueId('p'),
           x: nextX,
           y: nextY,
-          pointRadius: pointRadius,
-          pointColor: pointColor,
-          borderColor: borderColor,
-          borderWidth: borderWidth,
-          lineLabel: lineLabel
+          lineLabel: lineLabel,
+          pointRadius: pointRadius
         };
             
         // for first line, just add target point
@@ -484,16 +523,6 @@ app.views.MapsAddView = Backbone.View.extend({
         // for additional new lines, place first point next to the first line's target point plus offset
         } else {
           newPoint.x = firstX + j*offsetWidth;
-        }
-        
-        // big dot for symbols
-        if (point.symbol) {          
-          newPoint.pointRadius = pointRadiusLarge;
-          newPoint.symbol = point.symbol;
-          if (foundLine) {
-            newPoint.pointColor = foundLine.color;
-            newPoint.borderColor = foundLine.color;
-          }
         }
         
         // line already exists
@@ -525,15 +554,9 @@ app.views.MapsAddView = Backbone.View.extend({
               newLine = {
                 label: lineLabel,
                 color: color.hex,
-                strokeWidth: strokeWidth,
-                strokeOpacity: strokeOpacity,
-                symbol: point.symbol,
+                symbol: that.getSymbol(lineLabel, lines),
                 points: []            
-              };
-          if (point.symbol){
-            newPoint.pointColor = color.hex;
-            newPoint.borderColor = color.hex; 
-          }            
+              };         
           // add point to line, add line to lines
           newLine.points.push(newPoint);
           lines.push(newLine);
@@ -565,52 +588,15 @@ app.views.MapsAddView = Backbone.View.extend({
   
   processPoints: function(points){
     var that = this,
-        lineLabels = _.uniq( _.flatten( _.pluck(points, 'lines') ) ), // get unique lines
-        pps = [], lines = [];
+        lineLabels = _.uniq( _.flatten( _.pluck(points, 'lines') ) ); // get unique lines
     
     // loop through each point    
     _.each(points, function(p, i){
-      var pp = p;
       // sort all the lines consistently
-      pp.lines = _.sortBy(p.lines, function(lineLabel){ return lineLabels.indexOf(lineLabel); });
-      // loop through lines
-      _.each(pp.lines, function(lineLabel, j){
-        var foundLine = _.findWhere(lines, {label: lineLabel});
-        // check if line already added
-        if (foundLine) {
-          // keep track of last index
-          foundLine.lastIndex = pps.length;
-                    
-        } else {
-          // add line label and symbol
-          var symbol = that.getSymbol(lineLabel, lines);          
-          // add point for line label
-          pps.push({
-            symbol: symbol,
-            lines: [lineLabel]
-          });
-          lines.push({
-            lastIndex: pps.length,
-            label: lineLabel,
-            symbol: symbol
-          });
-        }
-      });
-      pps.push(pp);
+      p.lines = _.sortBy(p.lines, function(lineLabel){ return lineLabels.indexOf(lineLabel); });
     });
     
-    // order lines in descending lastIndex order
-    lines = _.sortBy(lines, function(line){ return line.lastIndex * -1; });
-    
-    // insert line symbol after last point
-    _.each(lines, function(line){
-      pps.splice(line.lastIndex+1, 0, {
-        symbol: line.symbol,
-        lines: [line.label]
-      });
-    });
-    
-    return pps;
+    return points;
   },
   
   translateCoordinates: function(x, y, direction, length){
