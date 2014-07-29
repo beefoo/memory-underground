@@ -19,7 +19,7 @@ var config = {
   "borderWidth": 2,
   "cornerRadius": 40,
   "pointRadius": 4,
-  "pointRadiusLarge": 7,
+  "pointRadiusLarge": 10,
   "strokeWidth": 8,
   "strokeOpacity": 0.8,
   "offsetWidth": 10,
