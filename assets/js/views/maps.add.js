@@ -55,7 +55,8 @@ app.views.MapsAddView = Backbone.View.extend({
   drawLabels: function(svg, labels, options) {
     var fontFamily = options.fontFamily,
         textColor = options.textColor,
-        fontSize = options.fontSize;
+        fontSize = options.fontSize,
+        fontWeight = options.fontWeight;
         
     svg.selectAll("text")
       .data(labels)
@@ -67,7 +68,7 @@ app.views.MapsAddView = Backbone.View.extend({
       .attr("alignment-baseline","middle")     
       .style("font-family", fontFamily)
       .style("font-size", fontSize)
-      .style("font-weight", "bold")
+      .style("font-weight", fontWeight)
       .style("fill", textColor);
   },
   
