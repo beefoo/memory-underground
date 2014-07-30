@@ -45,6 +45,29 @@ app.views.MapsAddView = Backbone.View.extend({
     return dots;
   },
   
+  addHubStyles: function(hubs, options){
+    var pointColor = options.pointColor,
+        borderColor = options.borderColor,
+        borderWidth = options.borderWidth,
+        borderRadius = options.borderRadius,
+        pointRadius = options.pointRadius,        
+        dotSize = pointRadius*2,
+        offsetWidth = options.offsetWidth - dotSize;
+        
+    _.each(hubs, function(hub){      
+      hub.pointColor = pointColor;
+      hub.borderColor = borderColor;
+      hub.borderWidth = borderWidth;
+      hub.borderRadius = borderRadius;
+      hub.width = hub.hubSize*dotSize + offsetWidth*(hub.hubSize-1);
+      hub.height = dotSize;
+      hub.hubOffsetX = -1*pointRadius;
+      hub.hubOffsetY = -1*pointRadius;
+    });
+    
+    return hubs;
+  },
+  
   addLabelStyles: function(labels, options){
     var fontFamily = options.fontFamily,
         textColor = options.textColor,
@@ -128,6 +151,21 @@ app.views.MapsAddView = Backbone.View.extend({
       .style("stroke-width", function(d){ return d.borderWidth; });
   },
   
+  drawHubs: function(svg, hubs){
+    svg.selectAll("rect")
+      .data(hubs)
+      .enter().append("rect")
+      .attr("width", function(d) { return d.width; })
+      .attr("height", function(d) { return d.height; })
+      .attr("x", function(d) { return d.x + d.hubOffsetX; })
+      .attr("y", function(d) { return d.y + d.hubOffsetY; })
+      .attr("rx", function(d) { return d.borderRadius; })
+      .attr("ry", function(d) { return d.borderRadius; })
+      .style("fill", function(d){ return d.pointColor; })
+      .style("stroke", function(d){ return d.borderColor; })
+      .style("stroke-width", function(d){ return d.borderWidth; });
+  },
+  
   drawLabels: function(svg, labels, options) {        
     svg.selectAll("text")
       .data(labels)
@@ -171,7 +209,8 @@ app.views.MapsAddView = Backbone.View.extend({
   
   drawMap: function(lines, width, height, options){
     var bgColor = options.bgColor,
-        svg, points, dots, labels, symbols;
+        hubSize = options.hubSize,
+        svg, points, dots, labels, hubs;
     
     // init svg and add to DOM
     svg = d3.select("#svg-wrapper")
@@ -181,25 +220,28 @@ app.views.MapsAddView = Backbone.View.extend({
       .attr("height", height);
     
     // give it a background color 
-    svg.append("rect")
+    /* svg.append("rect")
       .attr("width", "100%")
       .attr("height", "100%")
-      .attr("fill", bgColor);
+      .attr("fill", bgColor); */
             
     // extract points, dots, labels from lines
     points = _.flatten( _.pluck(lines, "points") );
     dots = _.filter(points, function(p){ return p.pointRadius && p.pointRadius > 0; });    
     labels = _.filter(points, function(p){ return p.label !== undefined || p.symbol !== undefined; });
+    hubs = _.filter(points, function(p){ return p.hubSize && p.hubSize >= hubSize; });
     
     // add styles
     lines = this.addLineStyles(lines, options);
     dots = this.addDotStyles(dots, options);
     labels = this.addLabelStyles(labels, options);
+    hubs = this.addHubStyles(hubs, options);
     
     // draw lines, dots, labels, and legend
     this.drawLines(svg, lines, options);
     this.drawDots(svg, dots);     
-    this.drawLabels(svg, labels, options);  
+    this.drawHubs(svg, hubs);
+    this.drawLabels(svg, labels, options);
     this.drawLegend(svg, lines);
   },
   
@@ -518,7 +560,8 @@ app.views.MapsAddView = Backbone.View.extend({
         // for first line, just add target point
         if (j===0) {
           firstX = newPoint.x;
-          if (point.label) newPoint.label = point.label; // only the target point of the first line gets label
+          newPoint.label = point.label; // only the target point of the first line gets label
+          newPoint.hubSize = lineCount;
           
         // for additional new lines, place first point next to the first line's target point plus offset
         } else {

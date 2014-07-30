@@ -17,6 +17,7 @@ var config = {
   "borderColor": "#444444",
   "borderColorInverse": "#ffffff",  
   "borderWidth": 2,
+  "borderRadius": 4,
   "cornerRadius": 40,
   "pointRadius": 4,
   "pointRadiusLarge": 10,
@@ -24,6 +25,7 @@ var config = {
   "strokeOpacity": 0.8,
   "offsetWidth": 12,
   "minXDiff": 5,
+  "hubSize": 4,
   "colors": [
     {"hex":"#e11002","group":"red"},
     {"hex":"#ff6d1c","group":"orange"},
@@ -43,7 +45,7 @@ var config = {
     
     {"hex":"#df054e","group":"red"},
     {"hex":"#e57257","group":"orange"},
-    {"hex":"#fbfb1a","group":"yellow"},
+    {"hex":"#edd000","group":"yellow"},
     {"hex":"#77ad4d","group":"green"},
     {"hex":"#506ab5","group":"blue"},
     {"hex":"#8152a0","group":"violet"},
