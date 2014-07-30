@@ -34,9 +34,8 @@ app.routers.MainRouter = Backbone.Router.extend({
   
   mapsAdd: function(params){
     params = helper.parseQueryString(params);
-    params = $.extend({}, config, params);
     $.getJSON( "/data/brian.json", function(data) {
-      params.stations = data.stations;
+      params = $.extend({}, config, params, data);
       app.views.main = new app.views.MapsAddView(params);
     });   
   },

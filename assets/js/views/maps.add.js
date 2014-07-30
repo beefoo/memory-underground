@@ -13,11 +13,12 @@ app.views.MapsAddView = Backbone.View.extend({
     
     // generate lines with points
     lines = this.makeLines(stations, width, height, options);
+    legend = this.makeLegend(lines, options);
     endLines = this.makeEndLines(lines, options);
     lines = _.union(lines, endLines);
     
     // draw the svg map
-    this.drawMap(lines, width, height, options);
+    this.drawMap(lines, legend, width, height, options);
     
     // activate pan-zoom
     this.panZoom($("#map-svg"));
@@ -32,9 +33,11 @@ app.views.MapsAddView = Backbone.View.extend({
         borderWidth = options.borderWidth;    
     
     _.each(dots, function(dot){
+      // train symbol
       if (dot.symbol){
         dot.borderColor = dot.pointColor;
         dot.borderWidth = borderWidth;
+      // point/station
       } else {
         dot.pointColor = pointColor;
         dot.borderColor = borderColor;
@@ -45,7 +48,7 @@ app.views.MapsAddView = Backbone.View.extend({
     return dots;
   },
   
-  addHubStyles: function(hubs, options){
+  addRectStyles: function(rects, options){
     var pointColor = options.pointColor,
         borderColor = options.borderColor,
         borderWidth = options.borderWidth,
@@ -54,18 +57,26 @@ app.views.MapsAddView = Backbone.View.extend({
         dotSize = pointRadius*2,
         offsetWidth = options.offsetWidth - dotSize;
         
-    _.each(hubs, function(hub){      
-      hub.pointColor = pointColor;
-      hub.borderColor = borderColor;
-      hub.borderWidth = borderWidth;
-      hub.borderRadius = borderRadius;
-      hub.width = hub.hubSize*dotSize + offsetWidth*(hub.hubSize-1);
-      hub.height = dotSize;
-      hub.hubOffsetX = -1*pointRadius;
-      hub.hubOffsetY = -1*pointRadius;
+    _.each(rects, function(rect){
+      // hub
+      if (rect.hubSize) {
+        rect.pointColor = pointColor;
+        rect.borderColor = borderColor;
+        rect.borderWidth = borderWidth;
+        rect.borderRadius = borderRadius;
+        rect.width = rect.hubSize*dotSize + offsetWidth*(rect.hubSize-1);
+        rect.height = dotSize;
+        rect.rectOffsetX = -1*pointRadius;
+        rect.rectOffsetY = -1*pointRadius;
+      // legend
+      } else if (rect.type=="legend") {        
+        rect.borderColor = borderColor;
+        rect.borderWidth = borderWidth;
+        rect.borderRadius = 0;
+      }
     });
     
-    return hubs;
+    return rects;
   },
   
   addLabelStyles: function(labels, options){
@@ -89,12 +100,12 @@ app.views.MapsAddView = Backbone.View.extend({
       // label
       } else {
         label.textColor = textColor;
-        label.fontSize = fontSize;
+        label.fontSize = label.fontSize || fontSize;
         label.fontWeight = fontWeight;
-        label.anchor = "end";
-        label.text = label.label;
-        label.offsetX = -10;
-        label.offsetY = 0; 
+        label.anchor = label.anchor || "end";
+        label.text = label.text || label.label;
+        label.offsetX = label.offsetX!==undefined ? label.offsetX : -10;
+        label.offsetY = label.offsetY!==undefined ? label.offsetY : 0; 
       }
     });
     
@@ -151,19 +162,19 @@ app.views.MapsAddView = Backbone.View.extend({
       .style("stroke-width", function(d){ return d.borderWidth; });
   },
   
-  drawHubs: function(svg, hubs){
-    svg.selectAll("rect")
-      .data(hubs)
-      .enter().append("rect")
-      .attr("width", function(d) { return d.width; })
-      .attr("height", function(d) { return d.height; })
-      .attr("x", function(d) { return d.x + d.hubOffsetX; })
-      .attr("y", function(d) { return d.y + d.hubOffsetY; })
-      .attr("rx", function(d) { return d.borderRadius; })
-      .attr("ry", function(d) { return d.borderRadius; })
-      .style("fill", function(d){ return d.pointColor; })
-      .style("stroke", function(d){ return d.borderColor; })
-      .style("stroke-width", function(d){ return d.borderWidth; });
+  drawRects: function(svg, rects){
+    _.each(rects, function(r){
+      svg.append("rect")
+        .attr("width", r.width)
+        .attr("height", r.height)
+        .attr("x", r.x + r.rectOffsetX)
+        .attr("y", r.y + r.rectOffsetY)
+        .attr("rx", r.borderRadius)
+        .attr("ry", r.borderRadius)
+        .style("fill", r.pointColor)
+        .style("stroke", r.borderColor)
+        .style("stroke-width", r.borderWidth);
+    });    
   },
   
   drawLabels: function(svg, labels, options) {        
@@ -179,10 +190,6 @@ app.views.MapsAddView = Backbone.View.extend({
       .style("font-size", function(d){ return d.fontSize; })
       .style("font-weight", function(d){ return d.fontWeight; })
       .style("fill", function(d){ return d.textColor; });
-  },
-  
-  drawLegend: function(svg, lines) {
-    
   },
   
   drawLines: function(svg, lines, options) {
@@ -207,10 +214,10 @@ app.views.MapsAddView = Backbone.View.extend({
     });
   },
   
-  drawMap: function(lines, width, height, options){
+  drawMap: function(lines, legend, width, height, options){
     var bgColor = options.bgColor,
         hubSize = options.hubSize,
-        svg, points, dots, labels, hubs;
+        svg, points, dots, labels, rects;
     
     // init svg and add to DOM
     svg = d3.select("#svg-wrapper")
@@ -218,31 +225,31 @@ app.views.MapsAddView = Backbone.View.extend({
       .attr("id", "map-svg")
       .attr("width", width)
       .attr("height", height);
-    
-    // give it a background color 
-    /* svg.append("rect")
-      .attr("width", "100%")
-      .attr("height", "100%")
-      .attr("fill", bgColor); */
             
     // extract points, dots, labels from lines
     points = _.flatten( _.pluck(lines, "points") );
     dots = _.filter(points, function(p){ return p.pointRadius && p.pointRadius > 0; });    
     labels = _.filter(points, function(p){ return p.label !== undefined || p.symbol !== undefined; });
-    hubs = _.filter(points, function(p){ return p.hubSize && p.hubSize >= hubSize; });
+    rects = _.filter(points, function(p){ return p.hubSize && p.hubSize >= hubSize; });
+    
+    // add legend items
+    lines = _.union(lines, legend.lines);
+    dots = _.union(dots, legend.dots);
+    labels = _.union(dots, legend.labels);    
     
     // add styles
     lines = this.addLineStyles(lines, options);
     dots = this.addDotStyles(dots, options);
     labels = this.addLabelStyles(labels, options);
-    hubs = this.addHubStyles(hubs, options);
+    rects = this.addRectStyles(rects, options);
+    legend.rects = this.addRectStyles(legend.rects, options);
     
-    // draw lines, dots, labels, and legend
+    // draw lines, dots, labels, rects
+    this.drawRects(svg, legend.rects);
     this.drawLines(svg, lines, options);
-    this.drawDots(svg, dots);     
-    this.drawHubs(svg, hubs);
+    this.drawDots(svg, dots);   
+    this.drawRects(svg, rects);
     this.drawLabels(svg, labels, options);
-    this.drawLegend(svg, lines);
   },
   
   exportSVG: function(){    
@@ -437,6 +444,27 @@ app.views.MapsAddView = Backbone.View.extend({
     return symbol;
   },
   
+  getTitleLines: function(title, titleMaxLineChars) {
+    var lines = [],
+        titleLength = title.length,
+        words = title.split(" "),
+        currentLine = "";
+        
+    _.each(words, function(word){
+      // if new word goes over max, start new line 
+      if (word.length+currentLine.length+1 > titleMaxLineChars) {
+        lines.push(currentLine);
+        currentLine = word;
+      } else {
+        currentLine += ' ' + word;
+      }
+    });
+    
+    if (currentLine.length) lines.push(currentLine);
+    
+    return lines;
+  },
+  
   makeEndLines: function(lines, options){
     var pointRadiusLarge = options.pointRadiusLarge,
         lineLength = pointRadiusLarge * 2 + 10,
@@ -495,6 +523,112 @@ app.views.MapsAddView = Backbone.View.extend({
     });
     
     return endLines;
+  },
+  
+  makeLegend: function(lines, options){ 
+    var canvasWidth = options.width,
+        canvasPaddingX = options.padding[0],
+        canvasPaddingY = options.padding[1],
+        title = options.title,
+        pointRadius = options.pointRadius,
+        pointRadiusLarge = options.pointRadiusLarge,
+        borderWidth = options.borderWidth,
+        width = options.legend.width,
+        padding = options.legend.padding,
+        bgColor = options.legend.bgColor,
+        titleFontSize = options.legend.titleFontSize,
+        titleMaxLineChars = options.legend.titleMaxLineChars,
+        titleLines = this.getTitleLines(title, titleMaxLineChars),
+        titleLineHeight = options.legend.titleLineHeight,
+        fontSize = options.legend.fontSize,
+        lineHeight = options.legend.lineHeight,
+        gridUnit = options.legend.gridUnit,
+        x1 = canvasWidth - width - canvasPaddingX - borderWidth*2,
+        y1 = canvasPaddingY,
+        height = padding *2 + lineHeight*lines.length + titleLineHeight*titleLines.length,
+        legend = {dots: [], labels: [], lines: [], rects: []};
+    
+    // create rectangle
+    legend.rects.push({
+      width: width,
+      height: height,
+      x: x1, y: y1,
+      rectOffsetX: 0,
+      rectOffsetY: 0,
+      pointColor: bgColor,
+      type: "legend"
+    });
+    
+    // add legend padding
+    x1 += padding;
+    y1 += padding;
+    
+    // add title
+    _.each(titleLines, function(titleLine, i){
+      legend.labels.push({
+        text: titleLine,
+        x: x1, y: y1,
+        anchor: "start",
+        offsetX: 0,
+        offsetY: 0,
+        fontSize: titleFontSize,
+        type: "legendTitle"
+      });
+      y1 += titleLineHeight;
+    });
+    
+    // add a space
+    y1 += gridUnit;
+    
+    // loop through lines
+    _.each(lines, function(line, i){
+      
+      // add symbol dot
+      legend.dots.push({
+        x: x1+pointRadiusLarge, y: y1,
+        pointColor: line.color,
+        symbol: line.symbol,
+        pointRadius: pointRadiusLarge
+      });
+      // add symbol label
+      legend.labels.push({
+        text: line.symbol,
+        x: x1+pointRadiusLarge, y: y1,
+        offsetX: 0,
+        offsetY: 0,
+        symbol: line.symbol
+      });
+      
+      // add line
+      legend.lines.push({
+        color: line.color,
+        type: "legend",
+        points: [
+          {x: x1+pointRadiusLarge*2, y: y1},
+          {x: x1+pointRadiusLarge*2+gridUnit*4, y: y1}
+        ]
+      });
+      // add line dot
+      legend.dots.push({
+        x: x1+pointRadiusLarge*2+gridUnit*2, y: y1,
+        pointRadius: pointRadius
+      });      
+      // add line label
+      legend.labels.push({
+        text: line.label + " Line",
+        x: x1+pointRadiusLarge*2+gridUnit*5, y: y1,
+        offsetX: 0,
+        offsetY: 0,
+        fontSize: fontSize,
+        anchor: "start",
+        type: "legend"
+      });
+      
+      y1+=lineHeight;
+    });
+    
+    return legend;
+    
   },
   
   makeLines: function(stations, width, height, options){

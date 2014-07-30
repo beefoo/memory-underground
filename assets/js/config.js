@@ -22,7 +22,7 @@ var config = {
   "pointRadius": 4,
   "pointRadiusLarge": 10,
   "strokeWidth": 8,
-  "strokeOpacity": 0.8,
+  "strokeOpacity": 0.9,
   "offsetWidth": 12,
   "minXDiff": 5,
   "hubSize": 4,
@@ -33,24 +33,21 @@ var config = {
     {"hex":"#45A844","group":"green"},
     {"hex":"#3D84CA","group":"blue"},
     {"hex":"#C1477F","group":"violet"},
-    {"hex":"#A59D90","group":"gray"},
-    
+    {"hex":"#A59D90","group":"gray"},    
     {"hex":"#F4897F","group":"red"},
     {"hex":"#FFA769","group":"orange"},
     {"hex":"#FFD45C","group":"yellow"},
     {"hex":"#74C063","group":"green"},
     {"hex":"#86D0ED","group":"blue"},
     {"hex":"#BF6992","group":"violet"},
-    {"hex":"#BAB4AA","group":"gray"},
-    
+    {"hex":"#BAB4AA","group":"gray"},    
     {"hex":"#D8448B","group":"red"},
     {"hex":"#E57257","group":"orange"},
     {"hex":"#FCAB1D","group":"yellow"},
     {"hex":"#45A384","group":"green"},
     {"hex":"#6285D1","group":"blue"},
     {"hex":"#9069AF","group":"violet"},
-    {"hex":"#999082","group":"gray"},
-    
+    {"hex":"#999082","group":"gray"},    
     {"hex":"#EA83B9","group":"red"},
     {"hex":"#E28876","group":"orange"},
     {"hex":"#FFD773","group":"yellow"},
@@ -59,6 +56,17 @@ var config = {
     {"hex":"#AB90C4","group":"violet"},
     {"hex":"#CCC6BE","group":"gray"}
   ],
+  "legend": {
+    "width": 440,
+    "padding": 50,
+    "bgColor": "#e8ddc2",
+    "titleFontSize": 32,
+    "titleMaxLineChars": 18,
+    "titleLineHeight": 40,
+    "fontSize": 14,
+    "lineHeight": 30,
+    "gridUnit": 20
+  },
   "pathTypes": [
     {"xDirection":"s","directions":["s"]}, // straight line
     {"xDirection":"e","directions":["s","e","s"]}, // elbow right
