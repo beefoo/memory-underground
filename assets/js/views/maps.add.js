@@ -430,6 +430,9 @@ app.views.MapsAddView = Backbone.View.extend({
         symbols = _.pluck(lines, "symbol"),
         symbol = str.charAt(0);
     
+    // strip spaces
+    str = str.replace(" ","");
+    
     // loop through string's characters
     for(var i=0; i<str.length; i++) {
       // get next character
