@@ -1,5 +1,6 @@
 {
-  "points": [
+  "title": "Hipster Ipsum",
+  "stations": [
     {"label":"Selfies","lines":["Georgia","Hawaii"]},
     {"label":"chillwave","lines":["Idaho"]},
     {"label":"polaroid","lines":["Delaware","Colorado","Hawaii"]},

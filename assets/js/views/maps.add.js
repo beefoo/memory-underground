@@ -3,16 +3,16 @@ app.views.MapsAddView = Backbone.View.extend({
   el: 'body',
 
   initialize: function(options) {
-    var points = options.points,
+    var stations = options.stations,
         width = options.width,
         height = options.height,
         pathInterpolation = options.pathInterpolation,
         lines = [], endLines = [];
     
-    points = this.processPoints(points);
+    stations = this.processStations(stations);
     
     // generate lines with points
-    lines = this.makeLines(points, width, height, options);
+    lines = this.makeLines(stations, width, height, options);
     endLines = this.makeEndLines(lines, options);
     lines = _.union(lines, endLines);
     
@@ -497,7 +497,7 @@ app.views.MapsAddView = Backbone.View.extend({
     return endLines;
   },
   
-  makeLines: function(points, width, height, options){
+  makeLines: function(stations, width, height, options){
     var that = this,
         // options
         paddingX = options.padding[0],
@@ -512,8 +512,8 @@ app.views.MapsAddView = Backbone.View.extend({
         activeW = width - paddingX*2,
         activeH = height - paddingY*2,
         boundaries = {minX: paddingX, minY: paddingY, maxX: width-paddingX, maxY: height-paddingY},
-        pointCount = points.length,
-        yUnit = Math.floor(activeH/pointCount),
+        stationCount = stations.length,
+        yUnit = Math.floor(activeH/stationCount),
         // initializers
         lines = [],
         prevLines = [];
@@ -521,15 +521,15 @@ app.views.MapsAddView = Backbone.View.extend({
     // ensure y-unit is 2 or more
     if (yUnit<2) yUnit = 2;
     
-    // loop through points
-    _.each(points, function(point, i){
+    // loop through stations
+    _.each(stations, function(station, i){
       var nextY = paddingY + i * yUnit, // next available yUnit
-          nextX = that.getNextX(boundaries, i, pointCount, activeW, minXDiff), // random x
-          lineCount = point.lines.length,
+          nextX = that.getNextX(boundaries, i, stationCount, activeW, minXDiff), // random x
+          lineCount = station.lines.length,
           firstX = nextX;
           
-      // loop through point's lines
-      _.each(point.lines, function(lineLabel, j){
+      // loop through station's lines
+      _.each(station.lines, function(lineLabel, j){
         // if line already exists
         var foundLine = _.findWhere(lines, {label: lineLabel}),
             prevPoint = false, newPoint;
@@ -545,7 +545,7 @@ app.views.MapsAddView = Backbone.View.extend({
         
         // if line already exists, make sure X is within 20% of previous X
         } else if (prevPoint) {                   
-          nextX = that.getNextX(boundaries, i, pointCount, activeW, minXDiff, prevPoint);
+          nextX = that.getNextX(boundaries, i, stationCount, activeW, minXDiff, prevPoint);
         }
         
         // init new point
@@ -560,7 +560,7 @@ app.views.MapsAddView = Backbone.View.extend({
         // for first line, just add target point
         if (j===0) {
           firstX = newPoint.x;
-          newPoint.label = point.label; // only the target point of the first line gets label
+          newPoint.label = station.label; // only the target point of the first line gets label
           newPoint.hubSize = lineCount;
           
         // for additional new lines, place first point next to the first line's target point plus offset
@@ -607,7 +607,7 @@ app.views.MapsAddView = Backbone.View.extend({
         
       });
       
-      prevLines = point.lines;     
+      prevLines = station.lines;     
     });
     
     // console.log(lines)
@@ -629,17 +629,17 @@ app.views.MapsAddView = Backbone.View.extend({
     });
   },
   
-  processPoints: function(points){
+  processStations: function(stations){
     var that = this,
-        lineLabels = _.uniq( _.flatten( _.pluck(points, 'lines') ) ); // get unique lines
+        lineLabels = _.uniq( _.flatten( _.pluck(stations, 'lines') ) ); // get unique lines
     
     // loop through each point    
-    _.each(points, function(p, i){
+    _.each(stations, function(station, i){
       // sort all the lines consistently
-      p.lines = _.sortBy(p.lines, function(lineLabel){ return lineLabels.indexOf(lineLabel); });
+      station.lines = _.sortBy(station.lines, function(lineLabel){ return lineLabels.indexOf(lineLabel); });
     });
     
-    return points;
+    return stations;
   },
   
   translateCoordinates: function(x, y, direction, length){
