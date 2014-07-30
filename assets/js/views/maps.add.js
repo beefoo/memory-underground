@@ -298,8 +298,8 @@ app.views.MapsAddView = Backbone.View.extend({
   
   getNextX: function(boundaries, iterator, totalPoints, width, minXDiff, prevPoint){
     var x = 0,
-        prevPadding = 0.2,
-        trendPadding = 0.3,
+        prevPadding = 0.25,
+        trendPadding = 0.4,
         percentComplete = parseFloat(iterator/totalPoints),
         // absolute min/max based on boundaries
         absMinX = boundaries.minX,
@@ -534,7 +534,9 @@ app.views.MapsAddView = Backbone.View.extend({
         pointRadiusLarge = options.pointRadiusLarge,
         borderWidth = options.borderWidth,
         width = options.legend.width,
+        columns = options.legend.columns,        
         padding = options.legend.padding,
+        columnWidth = Math.floor((width-padding*2)/columns),
         bgColor = options.legend.bgColor,
         titleFontSize = options.legend.titleFontSize,
         titleMaxLineChars = options.legend.titleMaxLineChars,
@@ -545,8 +547,25 @@ app.views.MapsAddView = Backbone.View.extend({
         gridUnit = options.legend.gridUnit,
         x1 = canvasWidth - width - canvasPaddingX - borderWidth*2,
         y1 = canvasPaddingY,
-        height = padding *2 + lineHeight*lines.length + titleLineHeight*titleLines.length,
+        lineCount = lines.length,
+        height = padding *2 + lineHeight*Math.ceil(lineCount/columns) + titleLineHeight*titleLines.length,        
         legend = {dots: [], labels: [], lines: [], rects: []};
+    
+    // break up lines into columns
+    var columnLines = [],
+        perColumn = Math.floor(lineCount/columns),
+        remainder = lineCount%columns,
+        lineIndex = 0;
+    _.times(columns, function(i){
+      var start = lineIndex,
+          end = lineIndex+perColumn;
+      // add remainder to first column
+      if (i===0)  end += remainder;
+      columnLines.push(
+        lines.slice(start, end)
+      );
+      lineIndex = end;
+    });
     
     // create rectangle
     legend.rects.push({
@@ -580,51 +599,60 @@ app.views.MapsAddView = Backbone.View.extend({
     // add a space
     y1 += gridUnit;
     
-    // loop through lines
-    _.each(lines, function(line, i){
+    // loop through columns
+    _.each(columnLines, function(columnLine, c){
       
-      // add symbol dot
-      legend.dots.push({
-        x: x1+pointRadiusLarge, y: y1,
-        pointColor: line.color,
-        symbol: line.symbol,
-        pointRadius: pointRadiusLarge
-      });
-      // add symbol label
-      legend.labels.push({
-        text: line.symbol,
-        x: x1+pointRadiusLarge, y: y1,
-        offsetX: 0,
-        offsetY: 0,
-        symbol: line.symbol
+      var colOffset = columnWidth * c,
+          y2 = y1;
+      
+      // loop through lines
+      _.each(columnLine, function(line, i){
+        
+        // add symbol dot
+        legend.dots.push({
+          x: colOffset+x1+pointRadiusLarge, y: y2,
+          pointColor: line.color,
+          symbol: line.symbol,
+          pointRadius: pointRadiusLarge
+        });
+        // add symbol label
+        legend.labels.push({
+          text: line.symbol,
+          x: colOffset+x1+pointRadiusLarge, y: y2,
+          offsetX: 0,
+          offsetY: 0,
+          symbol: line.symbol
+        });
+        
+        // add line
+        legend.lines.push({
+          color: line.color,
+          type: "legend",
+          points: [
+            {x: colOffset+x1+pointRadiusLarge*2, y: y2},
+            {x: colOffset+x1+pointRadiusLarge*2+gridUnit*4, y: y2}
+          ]
+        });
+        // add line dot
+        legend.dots.push({
+          x: colOffset+x1+pointRadiusLarge*2+gridUnit*2, y: y2,
+          pointRadius: pointRadius
+        });      
+        // add line label
+        legend.labels.push({
+          text: line.label + " Line",
+          x: colOffset+x1+pointRadiusLarge*2+gridUnit*5, y: y2,
+          offsetX: 0,
+          offsetY: 0,
+          fontSize: fontSize,
+          anchor: "start",
+          type: "legend"
+        });
+        
+        y2+=lineHeight;
       });
       
-      // add line
-      legend.lines.push({
-        color: line.color,
-        type: "legend",
-        points: [
-          {x: x1+pointRadiusLarge*2, y: y1},
-          {x: x1+pointRadiusLarge*2+gridUnit*4, y: y1}
-        ]
-      });
-      // add line dot
-      legend.dots.push({
-        x: x1+pointRadiusLarge*2+gridUnit*2, y: y1,
-        pointRadius: pointRadius
-      });      
-      // add line label
-      legend.labels.push({
-        text: line.label + " Line",
-        x: x1+pointRadiusLarge*2+gridUnit*5, y: y1,
-        offsetX: 0,
-        offsetY: 0,
-        fontSize: fontSize,
-        anchor: "start",
-        type: "legend"
-      });
       
-      y1+=lineHeight;
     });
     
     return legend;

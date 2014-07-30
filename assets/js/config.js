@@ -57,11 +57,12 @@ var config = {
     {"hex":"#CCC6BE","group":"gray"}
   ],
   "legend": {
-    "width": 440,
+    "width": 800,
     "padding": 50,
     "bgColor": "#e8ddc2",
+    "columns": 2,
     "titleFontSize": 32,
-    "titleMaxLineChars": 18,
+    "titleMaxLineChars": 30,
     "titleLineHeight": 40,
     "fontSize": 14,
     "lineHeight": 30,
