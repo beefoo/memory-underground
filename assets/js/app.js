@@ -22,32 +22,32 @@ app.routers.MainRouter = Backbone.Router.extend({
 
   routes: {
     '': 'home',
-    'build': 'mapsAdd',
-    'build?*queryString': 'mapsAdd',
-    'build/:id': 'mapsEdit',
-    'maps/:id': 'mapsShow'
+    'transit/add': 'transitAdd',
+    'transit/add?*queryString': 'transitAdd',
+    'transit/edit/:id': 'transitEdit',
+    'transit/:id': 'transitShow'
   },
   
   home: function(){
     app.views.main = new app.views.HomeView({});
   },
   
-  mapsAdd: function(params){
+  transitAdd: function(params){
     params = helper.parseQueryString(params);
     $.getJSON( "/data/brian.json", function(data) {
       params = $.extend({}, config, params, data);
-      app.views.main = new app.views.MapsAddView(params);
+      app.views.main = new app.views.TransitAddView(params);
     });   
   },
   
-  mapsEdit: function(id){
+  transitEdit: function(id){
     var map = null;
-    app.views.main = new app.views.MapsAddView({model: map});
+    app.views.main = new app.views.TransitAddView({model: map});
   }, 
   
-  mapsShow: function(id){
+  transitShow: function(id){
     var map = null;
-    app.views.main = new app.views.MapsShowView({model: map});
+    app.views.main = new app.views.TransitShowView({model: map});
   }
 
 });

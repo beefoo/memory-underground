@@ -1,4 +1,4 @@
-app.views.MapsShowView = Backbone.View.extend({
+app.views.TransitShowView = Backbone.View.extend({
 
   el: 'body',
 
