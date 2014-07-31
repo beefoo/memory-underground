@@ -1,6 +1,22 @@
 // Helper functions
 (function() {  
   window.helper = {};
+  helper.halton = function(index, base) {
+    var result = 0;
+    var f = 1 / base;
+    var i = index;
+    while(i > 0) {
+      result = result + f * (i % base);
+      i = Math.floor(i / base);
+      f = f / base;
+    }
+    return result;
+  };
+
+  helper.parameterize = function(str){
+    return str.trim().replace(/[^a-zA-Z0-9-\s]/g, '').replace(/[^a-zA-Z0-9-]/g, '-').toLowerCase();
+  };
+  
   helper.parseQueryString = function(queryString){
     var params = {};
     if(queryString){

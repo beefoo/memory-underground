@@ -33,6 +33,7 @@ app.views.TransitAddView = Backbone.View.extend({
         borderWidth = options.borderWidth;    
     
     _.each(dots, function(dot){
+      dot.className = dot.className || '';
       // train symbol
       if (dot.symbol){
         dot.borderColor = dot.pointColor;
@@ -58,6 +59,7 @@ app.views.TransitAddView = Backbone.View.extend({
         offsetWidth = options.offsetWidth - dotSize;
         
     _.each(rects, function(rect){
+      rect.className = rect.className || '';
       // hub
       if (rect.hubSize) {
         rect.pointColor = pointColor;
@@ -66,8 +68,8 @@ app.views.TransitAddView = Backbone.View.extend({
         rect.borderRadius = borderRadius;
         rect.width = rect.hubSize*dotSize + offsetWidth*(rect.hubSize-1);
         rect.height = dotSize;
-        rect.rectOffsetX = -1*pointRadius;
-        rect.rectOffsetY = -1*pointRadius;
+        rect.rectX = rect.x - pointRadius;
+        rect.rectY = rect.y - pointRadius;
       // legend
       } else if (rect.type=="legend") {        
         rect.borderColor = borderColor;
@@ -86,17 +88,18 @@ app.views.TransitAddView = Backbone.View.extend({
         fontWeight = options.fontWeight;
     
     _.each(labels, function(label){
+      label.className = label.className || '';
       label.fontFamily = fontFamily;
       label.alignment = "middle";
       // symbol    
       if (label.symbol) {
         label.textColor = "#ffffff";
         label.fontSize = 14;
-        label.fontWeight = "bold";
+        label.fontWeight = "normal";
         label.anchor = "middle"; 
         label.text = label.symbol;
-        label.offsetX = 0;
-        label.offsetY = 1;  
+        label.labelX = label.labelX!==undefined ? label.labelX : label.x;
+        label.labelY = label.labelY!==undefined ? label.labelY : label.y + 1;  
       // label
       } else {
         label.textColor = textColor;
@@ -104,8 +107,8 @@ app.views.TransitAddView = Backbone.View.extend({
         label.fontWeight = fontWeight;
         label.anchor = label.anchor || "end";
         label.text = label.text || label.label;
-        label.offsetX = label.offsetX!==undefined ? label.offsetX : -10;
-        label.offsetY = label.offsetY!==undefined ? label.offsetY : 0; 
+        label.labelX = label.labelX!==undefined ? label.labelX : label.x-10;
+        label.labelY = label.labelY!==undefined ? label.labelY : label.y; 
       }
     });
     
@@ -117,6 +120,7 @@ app.views.TransitAddView = Backbone.View.extend({
         strokeWidth = options.strokeWidth;
     
     _.each(lines, function(line){
+      line.className = line.className || '';
       line.strokeOpacity = strokeOpacity;
       // symbol    
       if (line.type=="symbol") {
@@ -157,6 +161,7 @@ app.views.TransitAddView = Backbone.View.extend({
       .attr("r", function(d) { return d.pointRadius; })
       .attr("cx", function(d) { return d.x; })
       .attr("cy", function(d) { return d.y; })
+      .attr("class", function(d) { return d.className || ''; })
       .style("fill", function(d){ return d.pointColor; })
       .style("stroke", function(d){ return d.borderColor; })
       .style("stroke-width", function(d){ return d.borderWidth; });
@@ -167,10 +172,11 @@ app.views.TransitAddView = Backbone.View.extend({
       svg.append("rect")
         .attr("width", r.width)
         .attr("height", r.height)
-        .attr("x", r.x + r.rectOffsetX)
-        .attr("y", r.y + r.rectOffsetY)
+        .attr("x", r.rectX)
+        .attr("y", r.rectY)
         .attr("rx", r.borderRadius)
         .attr("ry", r.borderRadius)
+        .attr("class", r.className)
         .style("fill", r.pointColor)
         .style("stroke", r.borderColor)
         .style("stroke-width", r.borderWidth);
@@ -182,8 +188,9 @@ app.views.TransitAddView = Backbone.View.extend({
       .data(labels)
       .enter().append("text")
       .text( function (d) { return d.text; })
-      .attr("x", function(d) { return d.x + d.offsetX; })
-      .attr("y", function(d) { return d.y + d.offsetY; })
+      .attr("class", function(d) { return d.className || ''; })
+      .attr("x", function(d) { return d.labelX; })
+      .attr("y", function(d) { return d.labelY; })
       .attr("text-anchor",function(d){ return d.anchor; })
       .attr("alignment-baseline",function(d){ return d.alignment; })     
       .style("font-family", function(d){ return d.fontFamily; })
@@ -206,6 +213,7 @@ app.views.TransitAddView = Backbone.View.extend({
       var points = line.points;
       svg.append("path")
         .attr("d", svg_line(points))
+        .attr("class", line.className)
         .style("stroke", line.color)
         .style("stroke-width", line.strokeWidth)
         .style("stroke-opacity", line.strokeOpacity)
@@ -215,8 +223,7 @@ app.views.TransitAddView = Backbone.View.extend({
   },
   
   drawMap: function(lines, legend, width, height, options){
-    var bgColor = options.bgColor,
-        hubSize = options.hubSize,
+    var bgColor = options.bgColor,        
         svg, points, dots, labels, rects;
     
     // init svg and add to DOM
@@ -230,7 +237,7 @@ app.views.TransitAddView = Backbone.View.extend({
     points = _.flatten( _.pluck(lines, "points") );
     dots = _.filter(points, function(p){ return p.pointRadius && p.pointRadius > 0; });    
     labels = _.filter(points, function(p){ return p.label !== undefined || p.symbol !== undefined; });
-    rects = _.filter(points, function(p){ return p.hubSize && p.hubSize >= hubSize; });
+    rects = _.filter(points, function(p){ return p.hubSize; });
     
     // add legend items
     lines = _.union(lines, legend.lines);
@@ -477,8 +484,11 @@ app.views.TransitAddView = Backbone.View.extend({
     _.each(lines, function(line, i){
       var firstPoint = line.points[0],
           lastPoint = line.points[line.points.length-1],
-          lineStart = { type: 'symbol', points: [] },
-          lineEnd = { type: 'symbol', points: [] },
+          lineClassName = helper.parameterize('line-'+line.label) + ' end-line',
+          pointClassName = helper.parameterize('point-'+line.label) + ' end-line',
+          lineStart = { className: lineClassName + ' start-line', type: 'symbol', points: [] },
+          lineEnd = { className: lineClassName, type: 'symbol', points: [] },
+          
           fpId = 'p'+firstPoint.y,
           lpId = 'p'+lastPoint.y;
       
@@ -500,24 +510,28 @@ app.views.TransitAddView = Backbone.View.extend({
         y: firstPoint.y - lineLength - yHash[fpId]%2*lineLength, // stagger y's that are next to each other
         symbol: line.symbol,
         pointColor: line.color,
-        pointRadius: pointRadiusLarge
+        pointRadius: pointRadiusLarge,
+        className: pointClassName + ' symbol'
       });
       lineStart.points.push({
         x: firstPoint.x,
-        y: firstPoint.y
+        y: firstPoint.y,
+        className: pointClassName
       });
           
       // make end line
       lineEnd.points.push({
         x: lastPoint.x,
-        y: lastPoint.y
+        y: lastPoint.y,
+        className: pointClassName
       });
       lineEnd.points.push({
         x: lastPoint.x,
         y: lastPoint.y + lineLength + yHash[lpId]%2*lineLength, // stagger y's that are next to each other
         symbol: line.symbol,
         pointColor: line.color,
-        pointRadius: pointRadiusLarge
+        pointRadius: pointRadiusLarge,
+        className: pointClassName + ' symbol'
       });
       
       // add end lines
@@ -528,8 +542,9 @@ app.views.TransitAddView = Backbone.View.extend({
     return endLines;
   },
   
-  makeLegend: function(lines, options){ 
-    var canvasWidth = options.width,
+  makeLegend: function(lines, options){    
+    var // options
+        canvasWidth = options.width,
         canvasPaddingX = options.padding[0],
         canvasPaddingY = options.padding[1],
         title = options.title,
@@ -539,19 +554,21 @@ app.views.TransitAddView = Backbone.View.extend({
         width = options.legend.width,
         columns = options.legend.columns,        
         padding = options.legend.padding,
-        columnWidth = Math.floor((width-padding*2)/columns),
         bgColor = options.legend.bgColor,
         titleFontSize = options.legend.titleFontSize,
         titleMaxLineChars = options.legend.titleMaxLineChars,
-        titleLines = this.getTitleLines(title, titleMaxLineChars),
         titleLineHeight = options.legend.titleLineHeight,
         fontSize = options.legend.fontSize,
         lineHeight = options.legend.lineHeight,
         gridUnit = options.legend.gridUnit,
+        // calculations
+        columnWidth = Math.floor((width-padding*2)/columns),        
+        titleLines = this.getTitleLines(title, titleMaxLineChars),        
         x1 = canvasWidth - width - canvasPaddingX - borderWidth*2,
         y1 = canvasPaddingY,
         lineCount = lines.length,
         height = padding *2 + lineHeight*Math.ceil(lineCount/columns) + titleLineHeight*titleLines.length,        
+        // initializers       
         legend = {dots: [], labels: [], lines: [], rects: []};
     
     // break up lines into columns
@@ -574,9 +591,8 @@ app.views.TransitAddView = Backbone.View.extend({
     legend.rects.push({
       width: width,
       height: height,
-      x: x1, y: y1,
-      rectOffsetX: 0,
-      rectOffsetY: 0,
+      rectX: x1,
+      rectY: y1,
       pointColor: bgColor,
       type: "legend"
     });
@@ -589,10 +605,9 @@ app.views.TransitAddView = Backbone.View.extend({
     _.each(titleLines, function(titleLine, i){
       legend.labels.push({
         text: titleLine,
-        x: x1, y: y1,
         anchor: "start",
-        offsetX: 0,
-        offsetY: 0,
+        labelX: x1,
+        labelY: y1,
         fontSize: titleFontSize,
         type: "legendTitle"
       });
@@ -611,45 +626,51 @@ app.views.TransitAddView = Backbone.View.extend({
       // loop through lines
       _.each(columnLine, function(line, i){
         
+        var lineClassName = helper.parameterize('line-'+line.label) + ' legend',
+            pointClassName = helper.parameterize('point-'+line.label) + ' legend';
+        
         // add symbol dot
         legend.dots.push({
           x: colOffset+x1+pointRadiusLarge, y: y2,
           pointColor: line.color,
           symbol: line.symbol,
-          pointRadius: pointRadiusLarge
+          pointRadius: pointRadiusLarge,
+          className: pointClassName
         });
         // add symbol label
         legend.labels.push({
           text: line.symbol,
-          x: colOffset+x1+pointRadiusLarge, y: y2,
-          offsetX: 0,
-          offsetY: 0,
-          symbol: line.symbol
+          labelX: colOffset+x1+pointRadiusLarge,
+          labelY: y2,
+          symbol: line.symbol,
+          className: pointClassName
         });
         
         // add line
         legend.lines.push({
           color: line.color,
           type: "legend",
+          className: lineClassName,
           points: [
-            {x: colOffset+x1+pointRadiusLarge*2, y: y2},
-            {x: colOffset+x1+pointRadiusLarge*2+gridUnit*4, y: y2}
+            {x: colOffset+x1+pointRadiusLarge*2, y: y2, className: pointClassName},
+            {x: colOffset+x1+pointRadiusLarge*2+gridUnit*4, y: y2, className: pointClassName}
           ]
         });
         // add line dot
         legend.dots.push({
           x: colOffset+x1+pointRadiusLarge*2+gridUnit*2, y: y2,
-          pointRadius: pointRadius
+          pointRadius: pointRadius,
+          className: pointClassName
         });      
         // add line label
         legend.labels.push({
           text: line.label + " Line",
-          x: colOffset+x1+pointRadiusLarge*2+gridUnit*5, y: y2,
-          offsetX: 0,
-          offsetY: 0,
+          labelX: colOffset+x1+pointRadiusLarge*2+gridUnit*5,
+          labelY: y2,
           fontSize: fontSize,
           anchor: "start",
-          type: "legend"
+          type: "legend",
+          className: pointClassName
         });
         
         y2+=lineHeight;
@@ -673,6 +694,7 @@ app.views.TransitAddView = Backbone.View.extend({
         cornerRadius = options.cornerRadius,
         minXDiff = options.minXDiff,
         pointRadius = options.pointRadius,
+        hubSize = options.hubSize,
         // calculations
         activeW = width - paddingX*2,
         activeH = height - paddingY*2,
@@ -697,7 +719,10 @@ app.views.TransitAddView = Backbone.View.extend({
       _.each(station.lines, function(lineLabel, j){
         // if line already exists
         var foundLine = _.findWhere(lines, {label: lineLabel}),
-            prevPoint = false, newPoint;
+            prevPoint = false, 
+            lineClassName = helper.parameterize('line-'+lineLabel) + " primary",
+            pointClassName = helper.parameterize('point-'+lineLabel),
+            newPoint;
         
         // retieve previous point
         if (foundLine) {
@@ -719,18 +744,24 @@ app.views.TransitAddView = Backbone.View.extend({
           x: nextX,
           y: nextY,
           lineLabel: lineLabel,
-          pointRadius: pointRadius
+          pointRadius: pointRadius,
+          className: pointClassName + " station"
         };
             
         // for first line, just add target point
         if (j===0) {
           firstX = newPoint.x;
           newPoint.label = station.label; // only the target point of the first line gets label
-          newPoint.hubSize = lineCount;
+          newPoint.className += " primary";
+          if (lineCount >= hubSize) {
+            newPoint.hubSize = lineCount;
+            newPoint.className += " hub";
+          }          
           
         // for additional new lines, place first point next to the first line's target point plus offset
         } else {
           newPoint.x = firstX + j*offsetWidth;
+          newPoint.className += " secondary";
         }
         
         // line already exists
@@ -749,6 +780,7 @@ app.views.TransitAddView = Backbone.View.extend({
 
           // add transition points          
           _.each(transitionPoints, function(tp){
+            tp.className = pointClassName;
             foundLine.points.push(tp);
           });
           
@@ -763,6 +795,7 @@ app.views.TransitAddView = Backbone.View.extend({
                 label: lineLabel,
                 color: color.hex,
                 symbol: that.getSymbol(lineLabel, lines),
+                className: lineClassName,
                 points: []            
               };         
           // add point to line, add line to lines
