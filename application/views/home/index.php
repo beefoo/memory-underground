@@ -1,6 +1,6 @@
 <div class="side-panel">
   
-  <h1><span>You Are My Here</span>: build a transit map of your personal relationships</h1>
+  <h1><span>You Are My Here</span>: exploring diverse methods of mapping personal geographies</h1>
   
   <h3>An interactive art project by <a href="http://brianfoocom">Brian Foo</a></h3>
   

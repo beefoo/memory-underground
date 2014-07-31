@@ -4,7 +4,7 @@
   <meta charset="utf-8">
   <meta http-equiv="X-UA-Compatible" content="IE=edge">
   <title>You Are My Here | Personal Transit Maps<?=(isset($title)&&$title)?' | '.$title:''?></title>
-  <meta name="description" content="You Are My Here: build a transit map of your personal relationships">
+  <meta name="description" content="You Are My Here: exploring diverse methods of mapping personal geographies">
   <meta name="viewport" content="width=device-width, initial-scale=1">  
   <!-- <meta name="image_src" content="<?=base_url('assets/img/youaremyhere.jpg')?>">
   <meta property="og:image" content="<?=base_url('assets/img/youaremyhere.jpg')?>" />  -->
