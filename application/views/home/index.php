@@ -1,6 +1,6 @@
 <div class="side-panel">
   
-  <h1><span>You Are My Here</span>: exploring diverse methods of mapping personal geographies</h1>
+  <h1><span>You Are My Here</span>: exploring methods &amp; creating tools for mapping personal geographies</h1>
   
   <h3>An interactive art project by <a href="http://brianfoocom">Brian Foo</a></h3>
   
