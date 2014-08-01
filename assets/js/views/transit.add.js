@@ -20,6 +20,10 @@ app.views.TransitAddView = Backbone.View.extend({
     // draw the svg map
     this.drawMap(lines, legend, width, height, options);
     
+    if (options.animate) {
+      this.animateMap();
+    }
+    
     // activate pan-zoom
     this.panZoom($("#map-svg"));
     
@@ -154,6 +158,10 @@ app.views.TransitAddView = Backbone.View.extend({
     });    
   },
   
+  animateMap: function(){
+    
+  },
+  
   drawDots: function(svg, dots) {
     svg.selectAll("dot")
       .data(dots)
@@ -202,6 +210,8 @@ app.views.TransitAddView = Backbone.View.extend({
   drawLines: function(svg, lines, options) {
     var that = this,
         pathInterpolation = options.pathInterpolation,
+        animate = options.animate,
+        animationDuration = options.animationDuration,
         svg_line;
         
     svg_line = d3.svg.line()
@@ -210,15 +220,31 @@ app.views.TransitAddView = Backbone.View.extend({
       .y(function(d) { return d.y; });
       
     _.each(lines, function(line){
-      var points = line.points;
-      svg.append("path")
-        .attr("d", svg_line(points))
-        .attr("class", line.className)
-        .style("stroke", line.color)
-        .style("stroke-width", line.strokeWidth)
-        .style("stroke-opacity", line.strokeOpacity)
-        .style("stroke-dasharray", line.strokeDash)
-        .style("fill", "none");          
+      var points = line.points,
+          path = svg.append("path")
+                  .attr("d", svg_line(points))
+                  .attr("class", line.className)
+                  .style("stroke", line.color)
+                  .style("stroke-width", line.strokeWidth)
+                  .style("stroke-opacity", line.strokeOpacity)                  
+                  .style("fill", "none");
+                  
+      // animate if it's a solid line
+      if (path && animate && line.strokeDash=="none") {
+        var totalLength = path.node().getTotalLength();
+        path
+          .attr("stroke-dasharray", totalLength + " " + totalLength)
+          .attr("stroke-dashoffset", totalLength)
+          .transition()
+            .duration(animationDuration)
+            .ease("linear")
+            .attr("stroke-dashoffset", 0)   
+      
+      // otherwise, set the stroke dash
+      } else {
+        path.style("stroke-dasharray", line.strokeDash);
+      }    
+                
     });
   },
   

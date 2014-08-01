@@ -26,6 +26,8 @@ var config = {
   "offsetWidth": 12,
   "minXDiff": 5,
   "hubSize": 4,
+  "animate": true,
+  "animationDuration": 10000,
   "colors": [
     {"hex":"#E5303C","group":"red"},
     {"hex":"#F6802C","group":"orange"},
