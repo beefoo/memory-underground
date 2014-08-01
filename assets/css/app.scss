@@ -118,9 +118,33 @@ ul {
   position: fixed;
   top: 0;
   left: 0;
+  z-index: 1;
   canvas,
   svg {
     -webkit-backface-visibility: initial !important;
     -webkit-transform-origin: 50% 50%;
+  }
+}
+
+.svg-controls {
+  position: fixed;
+  top: 20px;
+  left: 20px;
+  z-index: 10;
+  a {
+    display: block;
+    width: 40px;
+    height: 40px;
+    line-height: 40px;
+    text-align: center;
+    color: $white;
+    background: $tan;
+    margin-bottom: 10px;
+    font-size: 1.4em;   
+    @include border-radius(4px);    
+    &:hover {
+      text-decoration: none;
+      background: lighten($tan, 10%);
+    }
   }
 }

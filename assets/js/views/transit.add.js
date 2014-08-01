@@ -814,7 +814,10 @@ app.views.TransitAddView = Backbone.View.extend({
   },
   
   panZoom: function($selector){    
-    var $panzoom = $selector.panzoom();    
+    var $panzoom = $selector.panzoom({
+      $zoomIn: $('.svg-zoom-in'),
+      $zoomOut: $('.svg-zoom-out')
+    });    
     $panzoom.parent().on('mousewheel.focal', function( e ) {
       e.preventDefault();
       var delta = e.delta || e.originalEvent.wheelDelta;
