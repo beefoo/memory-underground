@@ -138,13 +138,13 @@ ul {
     line-height: 40px;
     text-align: center;
     color: $white;
-    background: $tan;
+    background: darken($tanLight, 10%);
     margin-bottom: 10px;
     font-size: 1.4em;   
     @include border-radius(4px);    
     &:hover {
       text-decoration: none;
-      background: lighten($tan, 10%);
+      background: $tanLight;
     }
   }
 }

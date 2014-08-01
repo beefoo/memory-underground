@@ -151,7 +151,7 @@ app.views.TransitAddView = Backbone.View.extend({
         default:
           break;
       }
-    });
+    });    
   },
   
   drawDots: function(svg, dots) {
@@ -242,7 +242,7 @@ app.views.TransitAddView = Backbone.View.extend({
     // add legend items
     lines = _.union(lines, legend.lines);
     dots = _.union(dots, legend.dots);
-    labels = _.union(dots, legend.labels);    
+    labels = _.union(labels, legend.labels);
     
     // add styles
     lines = this.addLineStyles(lines, options);
@@ -641,7 +641,7 @@ app.views.TransitAddView = Backbone.View.extend({
         legend.labels.push({
           text: line.symbol,
           labelX: colOffset+x1+pointRadiusLarge,
-          labelY: y2,
+          labelY: y2+1,
           symbol: line.symbol,
           className: pointClassName
         });
