@@ -1,3 +1,13 @@
 @import "mixins";
 @import "variables";
 
+@include keyframes(fadeInDown) {
+  0% {
+    @include opacity(0);
+    @include transform(translate3d(0, -100%, 0));
+  }
+  100% {
+    @include opacity(1);
+    @include transform(none);
+  }
+}

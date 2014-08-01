@@ -230,7 +230,7 @@ app.views.TransitAddView = Backbone.View.extend({
                   .style("fill", "none");
                   
       // animate if it's a solid line
-      if (path && animate && line.strokeDash=="none") {
+      if (path && animate && line.strokeDash=="none" && line.className.indexOf("primary")>=0) {
         var totalLength = path.node().getTotalLength();
         path
           .attr("stroke-dasharray", totalLength + " " + totalLength)
@@ -280,8 +280,8 @@ app.views.TransitAddView = Backbone.View.extend({
     // draw lines, dots, labels, rects
     this.drawRects(svg, legend.rects);
     this.drawLines(svg, lines, options);
-    this.drawDots(svg, dots);   
-    this.drawRects(svg, rects);
+    this.drawDots(svg, dots, options);   
+    this.drawRects(svg, rects, options);
     this.drawLabels(svg, labels, options);
   },
   
