@@ -144,11 +144,17 @@ app.views.TransitAddView = Backbone.View.extend({
     
     // keyboard listeners
     $(document).on('keydown', function(e){        
-      switch(e.keyCode) {
-        // o - output to json
+      switch(e.keyCode) {          
+        // o - output to svg
         case 79:
           if (e.ctrlKey) that.exportSVG();
           break;
+          
+        // m - output to png
+        case 77:
+          if (e.ctrlKey) that.exportPNG();
+          break;
+          
         default:
           break;
       }
@@ -292,12 +298,26 @@ app.views.TransitAddView = Backbone.View.extend({
     this.drawLabels(svg, labels, options);
   },
   
-  exportSVG: function(){    
-    var svg_xml = $("#map-svg").parent().html(),
-        b64 = window.btoa(svg_xml);
+  exportPNG: function(){
+    var content = $("#map-svg").parent().html().trim(),
+        canvas = document.getElementById('svg-canvas');
+
+    // Draw svg on canvas
+    canvg(canvas, content);
+    
+    // Retrieve img data
+    var imgSrc = canvas.toDataURL('image/png'),
+        $link = $('#svg-link');
         
-    data_url = "data:image/svg+xml;base64,\n"+b64;  
-    window.open(data_url, '_blank');
+    $link.attr('href', imgSrc);
+    $link.attr('download', 'memory-subway-map.png');
+    window.open(imgSrc, '_blank');    
+  },
+  
+  exportSVG: function(){    
+    var dataUrl = this.getImageDataUrl();
+    
+    window.open(dataUrl, '_blank');
     
     // $("body").append($("<img src='data:image/svg+xml;base64,\n"+b64+"' alt='file.svg'/>"));
   },
@@ -308,6 +328,13 @@ app.views.TransitAddView = Backbone.View.extend({
       i = i % lines.length;
     }
     return colors[i];
+  },
+  
+  getImageDataUrl: function(){
+    var svg_xml = $("#map-svg").parent().html(),
+        b64 = window.btoa(svg_xml);
+        
+    return "data:image/svg+xml;base64,\n"+b64; 
   },
   
   getLengths: function(xDiff, yDiff, directions, y, options) {
