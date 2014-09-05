@@ -1,6 +1,7 @@
 var config = {
   "width": 2400,
   "height": 3600,
+  "yUnit": 50,
   "bgColor": "#f2e9b8",
   "padding": [200, 200],  
   "textColor": "#000000",  
@@ -48,7 +49,7 @@ var config = {
     {"hex":"#FCAB1D","group":"yellow"},
     {"hex":"#45A384","group":"green"},
     {"hex":"#6285D1","group":"blue"},
-    {"hex":"#9069AF","group":"violet"},
+    {"hex":"#9975BC","group":"violet"},
     {"hex":"#999082","group":"gray"},    
     {"hex":"#EA83B9","group":"red"},
     {"hex":"#E28876","group":"orange"},
@@ -56,7 +57,14 @@ var config = {
     {"hex":"#75BCA2","group":"green"},
     {"hex":"#85A5DD","group":"blue"},
     {"hex":"#AB90C4","group":"violet"},
-    {"hex":"#CCC6BE","group":"gray"}
+    {"hex":"#CCC6BE","group":"gray"},    
+    {"hex":"#E05865","group":"red"},
+    {"hex":"#EA965C","group":"orange"},
+    {"hex":"#F4D069","group":"yellow"},
+    {"hex":"#73AA72","group":"green"},
+    {"hex":"#5D98C9","group":"blue"},
+    {"hex":"#D162A4","group":"violet"},
+    {"hex":"#A09D9A","group":"gray"}
   ],
   "legend": {
     "width": 800,

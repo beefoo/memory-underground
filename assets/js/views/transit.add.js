@@ -9,7 +9,8 @@ app.views.TransitAddView = Backbone.View.extend({
         pathInterpolation = options.pathInterpolation,
         lines = [], endLines = [];
     
-    stations = this.processStations(stations);
+    stations = this.processStations(stations);    
+    height = this.adjustHeight(height, stations.length, options);
     
     // generate lines with points
     lines = this.makeLines(stations, width, height, options);
@@ -19,10 +20,6 @@ app.views.TransitAddView = Backbone.View.extend({
     
     // draw the svg map
     this.drawMap(lines, legend, width, height, options);
-    
-    if (options.animate) {
-      this.animateMap();
-    }
     
     // activate pan-zoom
     this.panZoom($("#map-svg"));
@@ -158,10 +155,20 @@ app.views.TransitAddView = Backbone.View.extend({
     });    
   },
   
-  animateMap: function(){
+  adjustHeight: function(height, stationCount, options) {
+    var yUnit = options.yUnit,
+        paddingY = options.padding[1],
+        activeH = height - paddingY*2;
     
+    // make height shorter if not enough stations
+    if (Math.floor(height/stationCount) > yUnit) {
+      activeH = yUnit*stationCount;
+      height = activeH + paddingY*2;
+    }
+    
+    return height;
   },
-  
+
   drawDots: function(svg, dots) {
     svg.selectAll("dot")
       .data(dots)
@@ -303,10 +310,19 @@ app.views.TransitAddView = Backbone.View.extend({
     return colors[i];
   },
   
-  getLengths: function(xDiff, yDiff, directions) {
+  getLengths: function(xDiff, yDiff, directions, y, options) {
     var lengths = [],
         rand = _.random(20,80) / 100,
+        yUnit = options.yUnit,
+        paddingY = options.padding[1],
+        i = 0, timeout = 10,
         firstY;
+    
+    // don't let in-between points overlap with yUnit
+    while((y+Math.round(yDiff*rand)-paddingY)%yUnit===0 && i<timeout) {
+      rand = _.random(20,80) / 100;
+      i++;
+    }
     
     xDiff = Math.abs(xDiff);
     
@@ -369,7 +385,7 @@ app.views.TransitAddView = Backbone.View.extend({
     return x;
   },
   
-  getPointsBetween: function(p1, p2, pathTypes, cornerRadius) {
+  getPointsBetween: function(p1, p2, pathTypes, cornerRadius, options) {
     var that = this,
         points = [],
         x1 = p1.x, y1 = p1.y,
@@ -400,7 +416,7 @@ app.views.TransitAddView = Backbone.View.extend({
       
       // retrieve lengths
       var x = x1, y = y1,
-          lengths = that.getLengths(xDiff, yDiff, directions);
+          lengths = that.getLengths(xDiff, yDiff, directions, y, options);
           
       // generate points
       _.each(directions, function(direction, i){
@@ -733,6 +749,7 @@ app.views.TransitAddView = Backbone.View.extend({
     
     // ensure y-unit is 2 or more
     if (yUnit<2) yUnit = 2;
+    options.yUnit = yUnit;
     
     // loop through stations
     _.each(stations, function(station, i){
@@ -796,7 +813,7 @@ app.views.TransitAddView = Backbone.View.extend({
               lastPoint;          
 
           // retrieve transition points
-          transitionPoints = that.getPointsBetween(prevPoint, newPoint, pathTypes, cornerRadius);          
+          transitionPoints = that.getPointsBetween(prevPoint, newPoint, pathTypes, cornerRadius, options);          
           
           // add direction2 to previous point
           if (transitionPoints.length > 0 && foundLine.points.length > 0) {
