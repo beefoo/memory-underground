@@ -3,23 +3,54 @@
 
 .form-wrapper {
   width: 100%;
-  padding: 20px;
-  max-width: 800px;
-  margin: 10px auto;
+  padding: 20px 10px;
+  max-width: 600px;
+  margin: 0 auto;
   @include box-sizing();
 }
 
 .form-tab-links {
+  @include clearfix();
   
   .tab-link {
-    
+    display: block;
+    float: left;
+    width: 33.3333333%;
+    height: 40px;
+    line-height: 40px;
+    text-align: center;
+    background: $secondary;
+    color: $white;
+    overflow: hidden;
+    &:hover {
+      background: lighten($secondary, 5%);
+    }
+    &.active {
+      background: $secondaryLight;
+    }
+    &:first-child {
+      @include border-radius(6px 0px 0px 0px);
+    }
+    &:last-child {
+      @include border-radius(0px 6px 0px 0px);
+    }
   }
 }
 
 .form-tabs {
+  padding: 10px 20px 40px;
+  background: lighten($light, 10%);
+  @include border-radius(0 0 6px 6px);
   
-  .form-tab {
-    
+  .tab {
+    display: none;
+    &.active {
+      display: block;
+    }
+  }
+  
+  button[type="submit"] {
+    margin-top: 30px;
   }
 }
 

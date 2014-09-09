@@ -26,21 +26,36 @@ ul {
   margin: 0;
   padding: 0;
 }
+input {
+  display: block;
+  height: 40px;
+  line-height: 40px;
+  text-indent: 6px;
+  width: 100%;
+  @include box-sizing();
+}
+label {
+  display: block;
+  margin: 20px 0 10px;
+}
 
 /* Components */
-.button {
+button, .button {
   background: $secondary;
   color: $white;
   padding: 0.5em 1em;
   margin: 0.5em 0;
   text-align: center;
   display: inline-block;
+  border: none;
+  @include border-radius(6px);
   &:hover {
     background: $secondaryLight;
     color: $white;
   }
   &.expand {
     display: block;
+    width: 100%;
   }
   &.large {
     font-size: 1.4em;
@@ -52,10 +67,27 @@ ul {
 }
 
 .input-group {
+  @include clearfix();
   input {
-    
+    float: left;
+    width: 70%;
+    margin-right: -1px;
+    border: 1px solid #ccc;
+    border-right: none;
   }
   a {
-    
+    float: right;    
+    display: block;
+    width: 30%;
+    height: 40px;
+    line-height: 40px;
+    text-align: center;
+    background: $secondary;
+    color: $white;
+    @include border-radius(0px 6px 6px 0px);
+    @include box-sizing();
+    &:hover {
+      background: $secondaryLight;
+    }
   }
 }
