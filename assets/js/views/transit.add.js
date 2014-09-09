@@ -1,6 +1,6 @@
 app.views.TransitAddView = Backbone.View.extend({
 
-  el: 'body',
+  el: '#transit-add',
 
   initialize: function(options) {
     

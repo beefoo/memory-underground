@@ -10,4 +10,4 @@ application/logs/*
 
 .project
 _dev/
-assets/css/.sass-cache/*
+assets/.sass-cache/*

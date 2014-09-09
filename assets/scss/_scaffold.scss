@@ -1,0 +1,61 @@
+@import "mixins";
+@import "variables";
+
+/* Document */
+body {
+  color: $dark;
+  background: $white;
+  font-family: 'OpenSans', 'HelveticaNeue-Light', 'HelveticaNeue', Helvetica, Arial, sans-serif;
+}
+
+/* Global Elements */
+a {
+  color: $secondary;
+  text-decoration: none;
+  &:active,
+  &:hover {
+    outline: 0;
+    color: $secondaryLight;
+  }
+}
+img {
+  border: 0;
+}
+ul {
+  list-style: none;
+  margin: 0;
+  padding: 0;
+}
+
+/* Components */
+.button {
+  background: $secondary;
+  color: $white;
+  padding: 0.5em 1em;
+  margin: 0.5em 0;
+  text-align: center;
+  display: inline-block;
+  &:hover {
+    background: $secondaryLight;
+    color: $white;
+  }
+  &.expand {
+    display: block;
+  }
+  &.large {
+    font-size: 1.4em;
+    font-weight: bold;
+  }
+}
+.hide {
+  display: none;
+}
+
+.input-group {
+  input {
+    
+  }
+  a {
+    
+  }
+}
