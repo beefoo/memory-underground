@@ -34,20 +34,22 @@ app.routers.MainRouter = Backbone.Router.extend({
   
   transitAdd: function(params){
     params = helper.parseQueryString(params);
-    $.getJSON( "/data/brian.json", function(data) {
-      params = $.extend({}, config, params, data);
-      app.views.main = new app.views.TransitAddView(params);
-    });   
+    params = $.extend({}, config, params);
+    app.views.main = new app.views.TransitAddView(params);
   },
   
   transitEdit: function(id){
-    var map = null;
-    app.views.main = new app.views.TransitAddView({model: map});
+    $.getJSON( "/data/"+id+".json", function(data) {
+      params = $.extend({}, config, data);
+      app.views.main = new app.views.TransitAddView(params);
+    });
   }, 
   
   transitShow: function(id){
-    var map = null;
-    app.views.main = new app.views.TransitShowView({model: map});
+    $.getJSON( "/data/"+id+".json", function(data) {
+      params = $.extend({}, config, data);
+      app.views.main = new app.views.TransitShowView(params);
+    }); 
   }
 
 });
