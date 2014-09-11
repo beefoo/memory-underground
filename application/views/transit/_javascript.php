@@ -3,7 +3,7 @@
 <script type="text/javascript" src="<?=base_url('/assets/js/vendor/jquery.panzoom.min.js')?>"></script>
 <script type="text/javascript" src="<?=base_url('/assets/js/vendor/rgbcolor.js')?>"></script>
 <script type="text/javascript" src="<?=base_url('/assets/js/vendor/canvg.js')?>"></script>
-<script type="text/javascript" src="<?=base_url('/assets/js/models/map.js')?>"></script>
-<script type="text/javascript" src="<?=base_url('/assets/js/collections/maps.js')?>"></script>
+<script type="text/javascript" src="<?=base_url('/assets/js/models/transit.js')?>"></script>
+<script type="text/javascript" src="<?=base_url('/assets/js/collections/transits.js')?>"></script>
 <script type="text/javascript" src="<?=base_url('/assets/js/views/transit.add.js')?>"></script>
 <script type="text/javascript" src="<?=base_url('/assets/js/views/transit.show.js')?>"></script>

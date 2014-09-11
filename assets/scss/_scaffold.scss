@@ -32,11 +32,14 @@ input {
   line-height: 40px;
   text-indent: 6px;
   width: 100%;
+  border: 1px solid #ccc;
+  outline: none;
   @include box-sizing();
 }
 label {
   display: block;
   margin: 20px 0 10px;
+  font-size: 1.2em;
 }
 
 /* Components */
@@ -55,15 +58,32 @@ button, .button {
   }
   &.expand {
     display: block;
-    width: 100%;
   }
   &.large {
     font-size: 1.4em;
     font-weight: bold;
   }
 }
+button.expand {
+  width: 100%;
+}
+.message {
+  margin: 10px 0;
+  padding: 6px 12px;
+  border: 1px solid #ccc;
+  font-size: 12px;
+  overflow: hidden;
+  @include animation(growInDown 1s);
+  &.success {
+    background: $greenLight;
+    color: $greenDark;
+  }
+}
 .hide {
   display: none;
+}
+.grow-in-down {
+  @include animation(growInDown 1s);
 }
 
 .input-group {

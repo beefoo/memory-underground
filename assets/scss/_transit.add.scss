@@ -22,14 +22,21 @@
     background: $secondary;
     color: $white;
     overflow: hidden;
+    border-bottom: 1px solid darken($secondary, 10%);
+    border-left: 1px solid darken($secondary, 10%);
+    margin-left: -1px;
     &:hover {
       background: lighten($secondary, 5%);
     }
     &.active {
-      background: $secondaryLight;
+      background: lighten($light, 5%);
+      color: $dark;
+      border-bottom: 1px dashed darken($light, 5%);
     }
     &:first-child {
       @include border-radius(6px 0px 0px 0px);
+      border-left: none;
+      margin-left: 0;
     }
     &:last-child {
       @include border-radius(0px 6px 0px 0px);
@@ -50,20 +57,79 @@
   }
   
   button[type="submit"] {
-    margin-top: 30px;
+    margin-top: 20px;
   }
 }
 
 .tab-list {
-  
-  li {
-    
+  margin-top: 20px;
+  li {    
+    border-bottom: 1px solid darken($light, 5%);
+    padding: 6px 0;
+    overflow: hidden;
+    @include animation(growInDown 1s);
+  }  
+  .content {
+    line-height: 40px;    
+    @include clearfix();
+    > div {
+      height: 40px;
+      float: left;
+      overflow: hidden;
+    }
+  }
+  .button {
+    margin: 0;
+    padding: 0 10px;
+    font-size: 0.8em;
+    line-height: 30px;
+    vertical-align: middle;
+  }
+  input {
+    display: inline-block;
+    border: none;
+    line-height: 30px;
+    height: 30px;
+    vertical-align: middle;
+    background: rbga(255, 255, 255, 0.5);
+  }
+  .remove {
+    width: 5%;
+  }
+  .name {
+    width: 45%;
+    white-space: nowrap;
+    text-overflow: ellipsis;
+    overflow: hidden;
+    padding-right: 6px;
+    @include box-sizing();
+  }
+  .list {
+    width: 28%;
+    white-space: nowrap;
+    text-overflow: ellipsis;
+    overflow: hidden;
+    font-style: italic;
+    color: #888;
+  }
+  .action {
+    width: 22%;
+    text-align: right;
+    white-space: nowrap;
+    overflow: hidden;
   }
 }
 
-.select-wrapper {
+.people-select-list {  
+  li {
+    display: inline-block;
+    margin-right: 10px;
+  }
   
   .button {
-    
+    background: #bbb;
+    &.active {
+      background: $green;
+    }
   }
 }

@@ -11,3 +11,14 @@
     @include transform(none);
   }
 }
+
+@include keyframes(growInDown) {
+  0% {
+    max-height: 0px;
+    @include opacity(0);    
+  }
+  100% {
+    max-height: 200px;
+    @include opacity(1);    
+  }
+}
