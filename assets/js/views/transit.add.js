@@ -23,34 +23,54 @@ app.views.TransitAddView = Backbone.View.extend({
     this.$('#people .person-input').focus();
   },
   
-  addMemory: function($form){
-    var name = $form.find('input[name="name"]').val().trim(),
-        selectLinks = $form.find('.toggle-select-link.active').toArray(),
-        lineNames = _.map(selectLinks, function(link){ return $(link).attr('data-name'); }),
-        lines = new app.collections.LineList,
-        station;
-        
+  addMemory: function(data){   
+    var station = new app.models.Station(data);
+    
+    this.transit.addStation(station);
+    
+    // add new station to lines
     this.transit.get('lines').each(function(line){
-      if (lineNames.indexOf(line.get('name')) >= 0) {
-        lines.push(line);
+      var lineNames = _.pluck(station.get('lines'), 'name');
+      if (lineNames.indexOf(line.get('name')) >= 0) {        
+        line.get('stations').push(station.toJSON());
+        line.trigger('change');
       }
     });
     
-    station = new app.models.Station({name: name, lines: lines});  
-    station = this.transit.addStation(station);
-        
-    if (station) this.addMemoryToView(station);    
-    
+    this.addMemoryToView(station);
     this.showTab('#memories');
-    $form.find('input[name="name"]').val('').focus();
-    $form.find('.toggle-select-link').removeClass('active');    
-    $('#person-input-group').hide(); 
+    this.resetForm();
     $('#add-memory-success-message').show();
   },
   
   addMemoryOnSubmit: function(e){
-    e.preventDefault();        
-    this.addMemory($(e.currentTarget));
+    e.preventDefault();
+    
+    var $form = $(e.currentTarget),
+        id = $form.attr('data-memory-id'),
+        name = $form.find('input[name="name"]').val().trim(),
+        selectLinks = $form.find('.toggle-select-link.active').toArray(),
+        lineNames = _.map(selectLinks, function(link){ return $(link).attr('data-name'); }),
+        stationData = {name: name, lines: [], order: this.transit.get('stations').length},
+        station;
+        
+    this.transit.get('lines').each(function(line){
+      if (lineNames.indexOf(line.get('name')) >= 0) {
+        stationData.lines.push(line.toJSON());
+      }
+    });
+    
+    if (!this.isValidMemory(stationData)) {
+      return false;
+    }
+    
+    if (id.length) {
+      station = this.transit.get('stations').findWhere({id: id});
+      this.updateMemory(station, stationData);
+      
+    } else {      
+      this.addMemory(stationData);
+    }    
   },
   
   addMemoryToView: function(station){
@@ -61,14 +81,16 @@ app.views.TransitAddView = Backbone.View.extend({
   
   addPerson: function($input) {
     var name = $input.val().trim(),
-        line = new app.models.Line({name: name});
+        lineData = {name: name},
+        line;
     
-    if ($input.attr('data-active')) line.set('active', true);
+    if (!this.isValidPerson(lineData)) return false;
     
-    line = this.transit.addLine(line);
-        
-    if (line) this.addPersonToView(line);
+    line = new app.models.Line(lineData);
+    if ($input.attr('data-active')) line.set('active', true);    
+    this.transit.addLine(line);
     
+    this.addPersonToView(line);
     $input.val('').focus();
   },
   
@@ -93,6 +115,23 @@ app.views.TransitAddView = Backbone.View.extend({
     this.$("#people-select-list").prepend(selectItem.render().el);
     
     this.$('#add-person-success-message').show();
+  },
+  
+  isValidMemory: function(data){
+    return (data.name.length > 0 && data.lines.length > 0);
+  },
+  
+  isValidPerson: function(data){
+    return (data.name.length > 0 && !this.transit.get('lines').findWhere({name: data.name}) );
+  },
+  
+  resetForm: function(){
+    var $form = $('#memory-form');
+    
+    $form.find('input[name="name"]').val('').focus();
+    $form.find('.toggle-select-link').removeClass('active');
+    $form.attr('data-memory-id','');  
+    $('#person-input-group').hide(); 
   },
   
   showTab: function(href) {
@@ -120,6 +159,26 @@ app.views.TransitAddView = Backbone.View.extend({
         $el = $(href);
         
     $el.slideToggle();
+  },
+  
+  updateMemory: function(station, data) {
+    station.set(data);
+    
+    // update lines
+    this.transit.get('lines').each(function(line){
+      var lineNames = _.pluck(station.get('lines'), 'name');
+      if (lineNames.indexOf(line.get('name')) >= 0) {
+        _.each(line.get('stations'), function(lineStation){
+          if (lineStation.id == station.get('id')) {
+            lineStation = _.extend(lineStation, data);
+          }
+        });
+        line.trigger('change');
+      }
+    });
+    
+    this.showTab('#memories');
+    this.resetForm();
   }
 
 });
@@ -176,9 +235,25 @@ app.views.PersonListItem = Backbone.View.extend({
     this.$el.find('.list').toggleClass('active');
   },
   
+  updateMemories: function(oldName, newName){
+    var stationIds = _.pluck(this.model.get('stations'), 'id');
+    this.transit.get('stations').each(function(station){
+      if (stationIds.indexOf(station.get('id')) >= 0) {
+        _.each(station.get('lines'), function(stationLine){
+          if (stationLine.name == oldName) {
+            stationLine.name = newName;
+          }
+        });
+        station.trigger('change');
+      }
+    });
+  },
+  
   updateName: function(e){
-    var name = $(e.currentTarget).val().trim();    
-    this.model.set('name', name);    
+    var oldName = this.model.get('name'),
+        name = $(e.currentTarget).val().trim();    
+    this.model.set('name', name);
+    this.updateMemories(oldName, name);   
   },
   
   updateNameOnEnter: function(e){
@@ -243,11 +318,12 @@ app.views.MemoryListItem = Backbone.View.extend({
     e.preventDefault();
     
     var $form = $('#memory-form');
-      
+    
+    $form.attr('data-memory-id', this.model.get("id"));
     $form.find('input[name="name"]').val(this.model.get("name"));
     $form.find('.toggle-select-link').removeClass('active');
-    this.model.get('lines').each(function(line){
-      $form.find('.toggle-select-link[data-name="'+line.get('name')+'"]').addClass('active');
+    _.each(this.model.get('lines'), function(line){
+      $form.find('.toggle-select-link[data-name="'+line.name+'"]').addClass('active');
     });
     
     app.views.main.showTab('#add-memory');

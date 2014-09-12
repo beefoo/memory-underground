@@ -21,7 +21,7 @@
     </div>
     
     <div id="add-memory" class="tab">
-      <form id="memory-form">
+      <form id="memory-form" data-memory-id="">
         <label for="name">Enter A Memory<br /><small>Keep it short, this will be the name of a train station.</small></label>
         <input type="text" name="name" data-show="#memory-people-input" placeholder="e.g. 21st birthday, Winter camping, Mexico Honeymoon" maxlength="50" />
         <label for="people">Who Was In This Memory?<br /><small>For best results, most memories should include more than one person</small></label>

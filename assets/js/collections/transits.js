@@ -6,7 +6,9 @@ app.collections.LineList = Backbone.Collection.extend({
 
 app.collections.StationList = Backbone.Collection.extend({
 
-  model: app.models.Station
+  model: app.models.Station,
+  
+  comparator: 'order'
 
 });
 

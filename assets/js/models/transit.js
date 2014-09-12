@@ -8,11 +8,11 @@ app.models.Line = Backbone.Model.extend({
   },
   
   initialize: function(){
-    this.set('stations', new app.collections.StationList);
+    this.set('stations', []);
   },
   
   toJSON: function(){
-    var stations = this.get('stations').toJSON(),
+    var stations = this.get('stations'),
         stationString = _.reduce(stations, function(memo, station){return memo + ", " + station.name}, "");
         
     stationString = stationString.slice(2);
@@ -31,7 +31,8 @@ app.models.Station = Backbone.Model.extend({
   
   defaults: function() {
     return {
-      name: ''
+      name: '',
+      order: 0
     };
   },
   
@@ -40,7 +41,7 @@ app.models.Station = Backbone.Model.extend({
   },
   
   toJSON: function(){
-    var lines = this.get('lines').toJSON(),
+    var lines = this.get('lines'),
         lineString = _.reduce(lines, function(memo, line){return memo + ", " + line.name}, "");
     lineString = lineString.slice(2);
     return {
@@ -69,19 +70,8 @@ app.models.Transit = Backbone.Model.extend({
   },
   
   addLine: function(line) {    
-    if (line.get('name').length <= 0 
-        || this.get('lines').findWhere({name: line.get('name')}) ) return false;
-    
     this.get('lines').add(line);
     return line;
-  },
-  
-  editLine: function(line, properties) {
-    this.get('lines').each(function(l){
-      if (l.get('name') == line.get('name')) {
-        l.set(properties);
-      }
-    });
   },
   
   deleteLine: function(line) {
@@ -89,19 +79,9 @@ app.models.Transit = Backbone.Model.extend({
     line.clear();
   },
   
-  addStation: function(station) {
-    if (station.get('name').length <= 0 || station.get('lines').length <= 0) return false;
-    
+  addStation: function(station) {    
     this.get('stations').add(station);
     return station;
-  },
-  
-  editStation: function(station, properties) {
-    this.get('stations').each(function(s){
-      if (s.get('name') == station.get('name')) {
-        s.set(properties);
-      }
-    });
   },
   
   deleteStation: function(station) {
