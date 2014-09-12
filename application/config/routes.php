@@ -38,8 +38,8 @@
 |
 */
 
-$route['transit/(add|edit|create|update|destroy)([/|_].*)?'] = 'transit/$1$2';
-$route['transit/(:any)'] = 'transit/show/$1';
+$route['map/(add|edit|create|update|destroy)([/|_].*)?'] = 'transit/$1$2';
+$route['map/(:any)'] = 'transit/show/$1';
 $route['default_controller'] = "home";
 $route['404_override'] = '';
 

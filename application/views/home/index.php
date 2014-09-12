@@ -4,4 +4,4 @@
 
 <h3>An interactive art project by <a href="http://brianfoocom">Brian Foo</a></h3>
 
-<a href="/transit/add" class="button large">Build Your Map</a>
+<a href="/map/add" class="button large">Build Your Map</a>

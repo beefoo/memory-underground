@@ -9,14 +9,17 @@
   <div class="form-tabs">
     
     <div id="people" class="tab active">      
-      <label for="person-name">Enter Names of People You Had Memories With<br />
+      <label for="person-name">
+        Enter Names of People You Had Memories With<br />
         <small>These will be your train lines. For best results, add between 5 and 20 people with at least 2 memories per person</small>
       </label>
       <div class="input-group">
         <input type="text" name="person-name" class="person-input" placeholder="e.g. Annie, Brandon, Catherine" />
         <a href="#add-person" class="person-add-link">Add</a>
       </div>
-      <div id="add-person-success-message" class="message success hide">Great! Keep adding names of people, then start adding memories by clicking <em>add a memory</em> next to each person</div>
+      <div id="add-person-success-message" class="message success hide">
+        Great! Keep adding names of people, then start adding memories by clicking <em>add a memory</em> next to each person
+      </div>
       <ul id="people-list" class="tab-list"></ul>
     </div>
     
@@ -34,13 +37,12 @@
       </form>
     </div>
     
-    <div id="memories" class="tab">
-      
-      <div id="add-memory-success-message" class="message success hide">Keep adding memories until you are ready to see your map, then click the <em>Finish</em> tab above.
-        For best results you should have between 10 and 100 memories in total</div>
-        
-      <a href="#add-memory" class="tab-link button expand">Add Another Memory</a>
-      
+    <div id="memories" class="tab">      
+      <div id="add-memory-success-message" class="message success hide">
+        Keep adding memories until you are ready to see your map, then click the <em>Finish</em> tab above.
+        For best results you should have between 10 and 100 memories in total
+      </div>        
+      <a href="#add-memory" class="tab-link button expand">Add Another Memory</a>      
       <ul id="memories-list" class="tab-list"></ul>
     </div>
     

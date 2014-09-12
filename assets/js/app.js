@@ -22,10 +22,10 @@ app.routers.MainRouter = Backbone.Router.extend({
 
   routes: {
     '': 'home',
-    'transit/add': 'transitAdd',
-    'transit/add?*queryString': 'transitAdd',
-    'transit/edit/:id': 'transitEdit',
-    'transit/:id': 'transitShow'
+    'map/add': 'transitAdd',
+    'map/add?*queryString': 'transitAdd',
+    'map/edit/:id': 'transitEdit',
+    'map/:id': 'transitShow'
   },
   
   home: function(){

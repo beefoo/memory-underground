@@ -167,12 +167,21 @@ app.views.TransitAddView = Backbone.View.extend({
     // update lines
     this.transit.get('lines').each(function(line){
       var lineNames = _.pluck(station.get('lines'), 'name');
+              
       if (lineNames.indexOf(line.get('name')) >= 0) {
-        _.each(line.get('stations'), function(lineStation){
-          if (lineStation.id == station.get('id')) {
-            lineStation = _.extend(lineStation, data);
-          }
-        });
+        var lineStations = _.where(line.get('stations'), {id: station.get('id')});
+
+        if (lineStations.length > 0) {
+          _.each(lineStations, function(lineStation){
+            _.each(data, function(val, key) {
+              lineStation[key] = val;
+            });
+          });      
+          
+        } else {          
+          line.get('stations').push(station.toJSON());
+        }
+        
         line.trigger('change');
       }
     });
@@ -253,7 +262,7 @@ app.views.PersonListItem = Backbone.View.extend({
     var oldName = this.model.get('name'),
         name = $(e.currentTarget).val().trim();    
     this.model.set('name', name);
-    this.updateMemories(oldName, name);   
+    this.updateMemories(oldName, name);
   },
   
   updateNameOnEnter: function(e){
