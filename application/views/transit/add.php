@@ -28,9 +28,9 @@
         <label for="name">Enter A Memory<br /><small>Keep it short, this will be the name of a train station.</small></label>
         <input type="text" name="name" data-show="#memory-people-input" placeholder="e.g. 21st birthday, Winter camping, Mexico Honeymoon" maxlength="50" />
         <label for="people">Who Was In This Memory?<br /><small>For best results, most memories should include more than one person</small></label>
-        <ul id="people-select-list" class="people-select-list"><li><a href="#person-input-group" class="toggle-element button">+</a></li></ul>
+        <ul id="people-select-list" class="people-select-list"><li><a href="#person-input-group" class="toggle-element button" data-focus="#add-memory-person-input">+</a></li></ul>
         <div id="person-input-group" class="input-group hide">
-          <input type="text" name="person-name" class="person-input" placeholder="Enter another name" data-active="1" />
+          <input id="add-memory-person-input" type="text" name="person-name" class="person-input" placeholder="Enter another name" data-active="1" />
           <a href="#add-person" class="person-add-link">Add Person</a>
         </div>
         <button type="submit" class="expand">Save Memory</button>

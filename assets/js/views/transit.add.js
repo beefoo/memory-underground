@@ -8,7 +8,8 @@ app.views.TransitAddView = Backbone.View.extend({
     "keypress .person-input": "addPersonOnEnter",
     "click .tab-link": "showTabOnClick",
     "submit #memory-form": "addMemoryOnSubmit",
-    "click .toggle-element": "toggleElement"
+    "click .toggle-element": "toggleElement",
+    "click a[data-focus]": "focusElement"
   },
 
   initialize: function(options) {
@@ -25,17 +26,8 @@ app.views.TransitAddView = Backbone.View.extend({
   
   addMemory: function(data){   
     var station = new app.models.Station(data);
-    
+        
     this.transit.addStation(station);
-    
-    // add new station to lines
-    this.transit.get('lines').each(function(line){
-      var lineNames = _.pluck(station.get('lines'), 'name');
-      if (lineNames.indexOf(line.get('name')) >= 0) {        
-        line.get('stations').push(station.toJSON());
-        line.trigger('change');
-      }
-    });
     
     this.addMemoryToView(station);
     this.showTab('#memories');
@@ -117,6 +109,12 @@ app.views.TransitAddView = Backbone.View.extend({
     this.$('#add-person-success-message').show();
   },
   
+  focusElement: function(e){
+    var target = $(e.currentTarget).attr('data-focus');
+    
+    $(target).focus();    
+  },
+  
   isValidMemory: function(data){
     return (data.name.length > 0 && data.lines.length > 0);
   },
@@ -161,31 +159,8 @@ app.views.TransitAddView = Backbone.View.extend({
     $el.slideToggle();
   },
   
-  updateMemory: function(station, data) {
-    station.set(data);
-    
-    // update lines
-    this.transit.get('lines').each(function(line){
-      var lineNames = _.pluck(station.get('lines'), 'name');
-              
-      if (lineNames.indexOf(line.get('name')) >= 0) {
-        var lineStations = _.where(line.get('stations'), {id: station.get('id')});
-
-        if (lineStations.length > 0) {
-          _.each(lineStations, function(lineStation){
-            _.each(data, function(val, key) {
-              lineStation[key] = val;
-            });
-          });      
-          
-        } else {          
-          line.get('stations').push(station.toJSON());
-        }
-        
-        line.trigger('change');
-      }
-    });
-    
+  updateMemory: function(station, data) {    
+    this.transit.editStation(station, data);    
     this.showTab('#memories');
     this.resetForm();
   }
@@ -244,25 +219,10 @@ app.views.PersonListItem = Backbone.View.extend({
     this.$el.find('.list').toggleClass('active');
   },
   
-  updateMemories: function(oldName, newName){
-    var stationIds = _.pluck(this.model.get('stations'), 'id');
-    this.transit.get('stations').each(function(station){
-      if (stationIds.indexOf(station.get('id')) >= 0) {
-        _.each(station.get('lines'), function(stationLine){
-          if (stationLine.name == oldName) {
-            stationLine.name = newName;
-          }
-        });
-        station.trigger('change');
-      }
-    });
-  },
-  
   updateName: function(e){
-    var oldName = this.model.get('name'),
-        name = $(e.currentTarget).val().trim();    
-    this.model.set('name', name);
-    this.updateMemories(oldName, name);
+    var data = {name: $(e.currentTarget).val().trim()};
+    
+    this.transit.editLine(this.model, data);
   },
   
   updateNameOnEnter: function(e){
