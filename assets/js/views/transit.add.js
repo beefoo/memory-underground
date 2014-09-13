@@ -222,7 +222,12 @@ app.views.PersonListItem = Backbone.View.extend({
   updateName: function(e){
     var data = {name: $(e.currentTarget).val().trim()};
     
-    this.transit.editLine(this.model, data);
+    if (app.views.main.isValidPerson(data)) {
+      this.transit.editLine(this.model, data);
+      
+    } else {
+      this.$('.person-edit').val(this.model.get('name'));
+    }    
   },
   
   updateNameOnEnter: function(e){

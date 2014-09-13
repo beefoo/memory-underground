@@ -106,10 +106,16 @@ app.models.Transit = Backbone.Model.extend({
   
   deleteLine: function(line) {
     this.get('lines').remove(line);
-    // let all of the line's stations know
-    this.get('stations').each(function(station){
-      var lineNames = station.getLineNames();
+    
+    // update line's stations
+    var stationIds = line.getStationIds(),
+        stationMatches = this.get('stations').filter(function(station){return (stationIds.indexOf(station.get('id')) >= 0);});
+    
+    _.each(stationMatches, function(station){
+      var stationLines = _.reject(station.get('lines'), function(stationLine){return stationLine.name == line.get('name')});
+      station.set('lines', stationLines);
     });
+    
     line.clear();
   },
   
