@@ -50,9 +50,12 @@
   @include border-radius(0 0 6px 6px);
   
   .tab {
-    display: none;
+    max-height: 0;
+    overflow: hidden;
+    
     &.active {
-      display: block;
+      max-height: 5000px;
+      overflow: visible;
     }
   }
   
@@ -67,7 +70,6 @@
     border-bottom: 1px solid darken($light, 5%);
     padding: 6px 0;
     overflow: hidden;
-    @include animation(growInDown 1s);
   }  
   .content {
     line-height: 40px;    
@@ -117,6 +119,9 @@
     text-align: right;
     white-space: nowrap;
     overflow: hidden;
+  }
+  .sortable-handle {
+    cursor: move;
   }
 }
 

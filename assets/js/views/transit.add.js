@@ -22,6 +22,7 @@ app.views.TransitAddView = Backbone.View.extend({
     }
     
     this.$('#people .person-input').focus();
+    this.initSortable();
   },
   
   addMemory: function(data){   
@@ -66,9 +67,12 @@ app.views.TransitAddView = Backbone.View.extend({
   },
   
   addMemoryToView: function(station){
-    var listItem = new app.views.MemoryListItem({model: station, transit: this.transit});
+    var listItem = new app.views.MemoryListItem({model: station, transit: this.transit}),
+        $listItem = listItem.render().$el;
         
-    this.$("#memories-list").prepend(listItem.render().el);   
+    this.$("#memories-list").prepend($listItem.addClass('grow-in-down'));
+    this.$('#memories-list').sortable("refresh");
+    setTimeout(function(){$listItem.removeClass('grow-in-down')}, 2000);
   },
   
   addPerson: function($input) {
@@ -83,6 +87,7 @@ app.views.TransitAddView = Backbone.View.extend({
     this.transit.addLine(line);
     
     this.addPersonToView(line);
+    this.$('#add-person-success-message').show();
     $input.val('').focus();
   },
   
@@ -101,18 +106,28 @@ app.views.TransitAddView = Backbone.View.extend({
   
   addPersonToView: function(line) {
     var listItem = new app.views.PersonListItem({model: line, transit: this.transit}),
+        $listItem = listItem.render().$el,
         selectItem = new app.views.PersonSelectItem({model: line});
         
-    this.$("#people-list").prepend(listItem.render().el);
+    this.$("#people-list").prepend($listItem.addClass('grow-in-down'));
     this.$("#people-select-list").prepend(selectItem.render().el);
-    
-    this.$('#add-person-success-message').show();
+    setTimeout(function(){$listItem.removeClass('grow-in-down')}, 2000);    
   },
   
   focusElement: function(e){
     var target = $(e.currentTarget).attr('data-focus');
     
     $(target).focus();    
+  },
+  
+  initSortable: function(){
+    var that = this;
+    
+    this.$('#memories-list').sortable({
+      stop: function(event, ui){
+        that.sortMemories();
+      }
+    });
   },
   
   isValidMemory: function(data){
@@ -148,6 +163,17 @@ app.views.TransitAddView = Backbone.View.extend({
         href = $link.attr('href');
         
     this.showTab(href);
+  },
+  
+  sortMemories: function(){
+    var that = this,
+        $items = $('#memories-list > li');
+    
+    $items.each(function(i){
+      var id = $(this).attr('data-id'),
+          station = that.transit.get('stations').findWhere({id: id});          
+      if (station) station.set('order', i, {silent: true});
+    });
   },
   
   toggleElement: function(e){
@@ -313,7 +339,8 @@ app.views.MemoryListItem = Backbone.View.extend({
   },
   
   render: function() {
-    if (this.model.get('name')) {      
+    if (this.model.get('name')) {
+      this.$el.attr('data-id', this.model.get('id'));   
       this.$el.html(this.template(this.model.toJSON()));
       
     } else {

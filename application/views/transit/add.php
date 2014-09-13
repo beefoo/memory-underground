@@ -43,7 +43,7 @@
         For best results you should have between 10 and 100 memories in total
       </div>        
       <a href="#add-memory" class="tab-link button expand">Add Another Memory</a>      
-      <ul id="memories-list" class="tab-list"></ul>
+      <ul id="memories-list" class="tab-list sortable"></ul>
     </div>
     
     <div id="finish" class="tab">
@@ -77,7 +77,7 @@
 <script type="text/template" id="memory-list-item">
   <div class="content">
     <div class="remove"><a href="#remove-memory" class="remove-link">x</a></div>
-    <div class="name"><%- name %></div>
+    <div class="name sortable-handle"><%- name %></div>
     <div class="list" title="<%= lineString %>"><%= lineString %></div>
     <div class="action"><a href="#edit" class="edit-link button" data-id="<%- id %>">edit memory</a></div>
   </div>
