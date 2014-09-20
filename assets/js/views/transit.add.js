@@ -15,16 +15,17 @@ app.views.TransitAddView = Backbone.View.extend({
 
   initialize: function(options) {
     
+    this.initSortable();
+    
     if (options.transit) {
       this.transit = options.transit;
-      // TODO: initialize transit
+      this.initTransit();
       
     } else {
       this.transit = new app.models.Transit({user: options.user});
     }
     
-    this.$('#people .person-input').focus();
-    this.initSortable();
+    this.$('#people .person-input').focus();    
     this.resetErrors();
   },
   
@@ -151,6 +152,23 @@ app.views.TransitAddView = Backbone.View.extend({
         that.sortMemories();
       }
     });
+  },
+  
+  initTransit: function(){
+    var that = this;
+    
+    // add people/lines
+    this.transit.get('lines').each(function(line){
+      that.addPersonToView(line);
+    });
+    
+    // add memories/stations
+    this.transit.get('stations').each(function(station){
+      that.addMemoryToView(station);
+    });
+    
+    // add transit
+    $('#transit-form').find('input[name="title"]').val(this.transit.get('title'));
   },
   
   isValidMemory: function(data){

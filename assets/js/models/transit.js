@@ -8,7 +8,7 @@ app.models.Line = Backbone.Model.extend({
   },
   
   initialize: function(){
-    this.set('stations', []);
+    if (!this.get('stations')) this.set('stations', []);
   },
   
   getStationIds: function(){
@@ -41,7 +41,7 @@ app.models.Station = Backbone.Model.extend({
   },
   
   initialize: function(){
-    this.set('id', _.uniqueId('station_'));
+    if (!this.get('id')) this.set('id', _.uniqueId('station_'));
   },
   
   getLineNames: function(){
@@ -79,18 +79,43 @@ app.models.Transit = Backbone.Model.extend({
     };
   },
   
-  initialize: function(){
-    // TODO: check for init params    
+  initialize: function(){    
+    if (!this.get('slug')) this.set('slug', helper.randomString(8));
+    if (!this.get('token')) this.set('token', helper.token());
     
-    this.set('slug', helper.randomString(8));
-    this.set('token', helper.token());
+    var stationData = this.get('stations');
+    
     this.set('lines', new app.collections.LineList);
     this.set('stations', new app.collections.StationList);
+    
+    if (stationData){
+      this.addStationsFromData(stationData);
+      this.addLinesFromStations();     
+    }  
   },
   
   addLine: function(line) {    
     this.get('lines').add(line);
     return line;
+  },
+  
+  addLinesFromStations: function(){
+    var that = this;
+    
+    this.get('stations').each(function(station){
+      var stationData = {
+        id: station.get('id'),
+        name: station.get('name')
+      };
+      _.each(station.get('lines'), function(lineData){
+        var line = that.get('lines').findWhere({name: lineData.name});
+        if (line){
+          line.get('stations').push(stationData);
+        } else {
+          that.get('lines').add(new app.models.Line({name: lineData.name, stations: [stationData]}));
+        }
+      });
+    });
   },
   
   editLine: function(line, data){
@@ -145,6 +170,19 @@ app.models.Transit = Backbone.Model.extend({
     return station;
   },
   
+  addStationsFromData: function(stationData){
+    var that = this;
+    
+    _.each(stationData, function(data, i){
+      var stationData = {
+        name: data.label,
+        lines: _.map(data.lines, function(line){ return {name: line};}),
+        order: i
+      };
+      that.get('stations').add(new app.models.Station(stationData));      
+    });
+  },
+  
   editStation: function(station, data) {
     station.set(data);
     
@@ -189,7 +227,7 @@ app.models.Transit = Backbone.Model.extend({
     var that = this,
         data = this.toJSON(true);
         
-    $.post('/map/save/'+this.get('token'), data, function(resp){
+    $.post('/api/map/save/'+this.get('token'), data, function(resp){
       window.location = '/map/'+that.get('slug')+'/'+helper.parameterize(that.get('title'));
     }, 'json');
   },

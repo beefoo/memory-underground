@@ -38,9 +38,13 @@
 |
 */
 
-$route['map/(add|edit|save|create|update|destroy|user)([/|_].*)?'] = 'transit/$1$2';
+$route['api/map/(edit|save|user)([/|_].*)?'] = 'api/transit/$1$2';
+$route['api/map/(:any)'] = 'api/transit/show/$1';
+
+$route['map/(add|edit)([/|_].*)?'] = 'transit/$1$2';
 $route['map/([a-z0-9]+)/(:any)'] = 'transit/show/$1';
 $route['map/(:any)'] = 'transit/show/$1';
+
 $route['default_controller'] = "home";
 $route['404_override'] = '';
 
