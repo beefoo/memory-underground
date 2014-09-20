@@ -11,14 +11,15 @@
     <div id="people" class="tab active">      
       <label for="person-name">
         Enter Names of People You Had Memories With<br />
-        <small>These will be your train lines. For best results, add between 5 and 20 people with at least 2 memories per person</small>
+        <small>These will be your train lines. For best results, add between 5 and 20.</small>
       </label>
       <div class="input-group">
         <input type="text" name="person-name" class="person-input" placeholder="e.g. Annie, Brandon, Catherine" />
         <a href="#add-person" class="person-add-link">Add</a>
       </div>
       <div id="add-person-success-message" class="message success hide">
-        Great! Keep adding names of people, then start adding memories by clicking <em>add a memory</em> next to each person
+        Great! Keep adding names of people, then start adding memories by clicking <em>add a memory</em> next to each person. For best results,
+        add at least 2 memories per person.
       </div>
       <ul id="people-list" class="tab-list"></ul>
     </div>

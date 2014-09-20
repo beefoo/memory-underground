@@ -4,12 +4,13 @@ app.views.TransitAddView = Backbone.View.extend({
   el: '#transit-add',
   
   events: {
+    "submit #memory-form": "addMemoryOnSubmit",
     "click .person-add-link": "addPersonOnClick",    
     "keypress .person-input": "addPersonOnEnter",
-    "click .tab-link": "showTabOnClick",
-    "submit #memory-form": "addMemoryOnSubmit",
-    "click .toggle-element": "toggleElement",
-    "click a[data-focus]": "focusElement"
+    "submit #transit-form": "addTransitOnSubmit",
+    "click a[data-focus]": "focusElement",
+    "click .tab-link": "showTabOnClick",    
+    "click .toggle-element": "toggleElement"   
   },
 
   initialize: function(options) {
@@ -23,6 +24,7 @@ app.views.TransitAddView = Backbone.View.extend({
     
     this.$('#people .person-input').focus();
     this.initSortable();
+    this.resetErrors();
   },
   
   addMemory: function(data){   
@@ -54,6 +56,7 @@ app.views.TransitAddView = Backbone.View.extend({
     });
     
     if (!this.isValidMemory(stationData)) {
+      this.showErrorMessage();
       return false;
     }
     
@@ -80,7 +83,10 @@ app.views.TransitAddView = Backbone.View.extend({
         lineData = {name: name},
         line;
     
-    if (!this.isValidPerson(lineData)) return false;
+    if (!this.isValidPerson(lineData)) {
+      this.showErrorMessage();
+      return false;
+    }
     
     line = new app.models.Line(lineData);
     if ($input.attr('data-active')) line.set('active', true);    
@@ -114,6 +120,22 @@ app.views.TransitAddView = Backbone.View.extend({
     setTimeout(function(){$listItem.removeClass('grow-in-down')}, 2000);    
   },
   
+  addTransitOnSubmit: function(e){
+    e.preventDefault();
+    var $form = $(e.currentTarget),
+        title = $form.find('input[name="title"]').val().trim(),
+        data = {title: title};
+        
+    this.transit.set(data);
+    
+    if (!this.isValidTransit()){
+      this.showErrorMessage();
+      return false;
+    }
+    
+    this.saveMap();
+  },
+  
   focusElement: function(e){
     var target = $(e.currentTarget).attr('data-focus');
     
@@ -131,11 +153,49 @@ app.views.TransitAddView = Backbone.View.extend({
   },
   
   isValidMemory: function(data){
-    return (data.name.length > 0 && data.lines.length > 0);
+    if (data.name.length <= 0) {
+      this.errors.push("You must enter a memory");
+      return false;
+    }
+    
+    if (data.lines.length <= 0) {
+      this.errors.push("You must select at least one person in this memory");
+      return false;
+    }
+    
+    return true;
   },
   
   isValidPerson: function(data){
-    return (data.name.length > 0 && !this.transit.get('lines').findWhere({name: data.name}) );
+    if (data.name.length <= 0) {
+      this.errors.push("You must enter a name");
+      return false;
+    }
+    
+    if (this.transit.get('lines').findWhere({name: data.name})) {
+      this.errors.push('You have already entered the name "'+data.name+'"');
+      return false;
+    }
+    
+    return true;
+  },
+  
+  isValidTransit: function(){
+    if (this.transit.get('title').length <= 0) {
+      this.errors.push("You must enter a title for your map");
+      return false;
+    }
+    
+    if (this.transit.get('stations').length < 2) {
+      this.errors.push("You must enter at least two memories");
+      return false;
+    }
+    
+    return true;
+  },
+  
+  resetErrors: function(){
+    this.errors = [];
   },
   
   resetForm: function(){
@@ -145,6 +205,20 @@ app.views.TransitAddView = Backbone.View.extend({
     $form.find('.toggle-select-link').removeClass('active');
     $form.attr('data-memory-id','');  
     $('#person-input-group').hide(); 
+  },
+  
+  saveMap: function(){
+    this.$('#transit-form button[type="submit"]').prop("disabled",true).text("Saving Map For Viewing...");
+    
+    this.transit.save();
+  },
+  
+  showErrorMessage: function(){
+    if (!this.errors.length) return false;
+    
+    var message = this.errors.join(". ");
+    this.resetErrors();
+    alert(message);
   },
   
   showTab: function(href) {
@@ -253,6 +327,7 @@ app.views.PersonListItem = Backbone.View.extend({
       
     } else {
       this.$('.person-edit').val(this.model.get('name'));
+      app.views.main.resetErrors();
     }    
   },
   

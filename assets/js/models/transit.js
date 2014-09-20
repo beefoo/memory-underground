@@ -58,6 +58,13 @@ app.models.Station = Backbone.Model.extend({
       lines: lines,
       lineString: lineString   
     }
+  },
+  
+  toSavableJSON: function(){
+    return {
+      label: this.get('name'),
+      lines: this.getLineNames()
+    };
   }
   
 });
@@ -73,6 +80,7 @@ app.models.Transit = Backbone.Model.extend({
   },
   
   initialize: function(){
+    this.set('slug', helper.randomString(8));
     this.set('lines', new app.collections.LineList);
     this.set('stations', new app.collections.StationList);
   },
@@ -172,6 +180,37 @@ app.models.Transit = Backbone.Model.extend({
     });
     
     station.clear();
+  },
+  
+  save: function(){
+    var data = this.toJSON(true);
+    $.post('/map/save/'+this.get('slug'), data, function(resp){
+      window.location = '/map/'+this.get('slug')+'/'+helper.parameterize(this.get('title'));
+    }, 'json');
+  },
+  
+  saveLocal: function(){
+    if (!Modernizr.localstorage) return false;
+    
+    var data = this.toJSON();    
+    localStorage.setItem("transit-map-"+this.get("slug"), data);
+  },
+  
+  toJSON: function(stringify){
+    var stations = [];
+    
+    this.get('stations').each(function(station){
+      stations.push(station.toSavableJSON());
+    });
+    
+    if (stringify){
+      stations = JSON.stringify(stations);
+    }
+    
+    return {
+      title: this.get('title'),
+      stations: stations
+    };
   }
 
 });

@@ -1,3 +1,4 @@
+<script type="text/javascript" src="<?=base_url('/assets/js/vendor/modernizr.custom.js')?>"></script>
 <script type="text/javascript" src="<?=base_url('/assets/js/vendor/jquery-ui.min.js')?>"></script>
 <script type="text/javascript" src="<?=base_url('/assets/js/vendor/jquery.ui.touch-punch.min.js')?>"></script>
 <script type="text/javascript" src="<?=base_url('/assets/js/models/transit.js')?>"></script>
