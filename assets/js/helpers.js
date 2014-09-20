@@ -1,6 +1,6 @@
 // Helper functions
 (function() {  
-  window.helper = {};
+  window.helper = {};  
   helper.halton = function(index, base) {
     var result = 0;
     var f = 1 / base;
@@ -12,11 +12,18 @@
     }
     return result;
   };
-
+  helper.hRandom = function(min, max){
+    if (helper.hRandomIndex == undefined) helper.hRandomIndex = 0;    
+    var h = helper.halton(helper.hRandomIndex, 3),
+        rand = h * (max-min) + min;
+    
+    helper.hRandomIndex++;
+    
+    return rand;
+  };
   helper.parameterize = function(str){
     return str.trim().replace(/[^a-zA-Z0-9-\s]/g, '').replace(/[^a-zA-Z0-9-]/g, '-').toLowerCase();
-  };
-  
+  };  
   helper.parseQueryString = function(queryString){
     var params = {};
     if(queryString){

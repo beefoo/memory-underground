@@ -339,7 +339,7 @@ app.views.TransitShowView = Backbone.View.extend({
   
   getLengths: function(xDiff, yDiff, directions, y, options) {
     var lengths = [],
-        rand = _.random(20,80) / 100,
+        rand = helper.hRandom(20, 80) / 100,
         yUnit = options.yUnit,
         paddingY = options.padding[1],
         i = 0, timeout = 10,
@@ -347,7 +347,7 @@ app.views.TransitShowView = Backbone.View.extend({
     
     // don't let in-between points overlap with yUnit
     while((y+Math.round(yDiff*rand)-paddingY)%yUnit===0 && i<timeout) {
-      rand = _.random(20,80) / 100;
+      rand = helper.hRandom(20,80) / 100;
       i++;
     }
     
@@ -401,9 +401,9 @@ app.views.TransitShowView = Backbone.View.extend({
     do {
       // ensure no logic error   
       if (minX<maxX) {
-        x =  _.random(minX, maxX);
+        x =  helper.hRandom(minX, maxX);
       } else {
-        x =  _.random(maxX, minX);
+        x =  helper.hRandom(maxX, minX);
       }
       if (prevPoint)
         xDiff = Math.abs(Math.floor(x - prevPoint.x));
