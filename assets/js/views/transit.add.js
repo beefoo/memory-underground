@@ -17,9 +17,10 @@ app.views.TransitAddView = Backbone.View.extend({
     
     if (options.transit) {
       this.transit = options.transit;
+      // TODO: initialize transit
       
     } else {
-      this.transit = new app.models.Transit;
+      this.transit = new app.models.Transit({user: options.user});
     }
     
     this.$('#people .person-input').focus();

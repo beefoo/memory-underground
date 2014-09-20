@@ -75,12 +75,15 @@ app.models.Transit = Backbone.Model.extend({
   defaults: function() {
     return {
       title: '',
-      user: ''
+      revisions: 0
     };
   },
   
   initialize: function(){
+    // TODO: check for init params    
+    
     this.set('slug', helper.randomString(8));
+    this.set('token', helper.token());
     this.set('lines', new app.collections.LineList);
     this.set('stations', new app.collections.StationList);
   },
@@ -183,9 +186,11 @@ app.models.Transit = Backbone.Model.extend({
   },
   
   save: function(){
-    var data = this.toJSON(true);
-    $.post('/map/save/'+this.get('slug'), data, function(resp){
-      window.location = '/map/'+this.get('slug')+'/'+helper.parameterize(this.get('title'));
+    var that = this,
+        data = this.toJSON(true);
+        
+    $.post('/map/save/'+this.get('token'), data, function(resp){
+      window.location = '/map/'+that.get('slug')+'/'+helper.parameterize(that.get('title'));
     }, 'json');
   },
   
@@ -193,7 +198,7 @@ app.models.Transit = Backbone.Model.extend({
     if (!Modernizr.localstorage) return false;
     
     var data = this.toJSON();    
-    localStorage.setItem("transit-map-"+this.get("slug"), data);
+    //localStorage.setItem("transit-map-"+this.get("slug"), data);
   },
   
   toJSON: function(stringify){
@@ -209,6 +214,10 @@ app.models.Transit = Backbone.Model.extend({
     
     return {
       title: this.get('title'),
+      slug: this.get('slug'),
+      user: this.get('user'),
+      token: this.get('token'),
+      revisions: this.get('revisions'),
       stations: stations
     };
   }

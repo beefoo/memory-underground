@@ -2,15 +2,21 @@
 
 class Transit extends CI_Controller {
   
+  public function __construct() {
+    parent::__construct();
+    
+    $this->load->model('transit_model');
+  }
+  
   public function show($slug) {
-    if (!$transit = $this->Transit->get_entry_by_slug($slug)) {
+    if (!$transit = $this->transit_model->getEntryBySlug($slug)) {
       $this->error();
       return false;
     }
     
     if ($this->input->is_ajax_request()) {
-      $data['title'] = $transit->title;
-      $data['stations'] = json_decode($transit->stations);
+      $data = $transit;
+      $data->stations = json_decode($transit->stations);
       echo json_encode($data);
       
     } else {
@@ -31,51 +37,72 @@ class Transit extends CI_Controller {
   }
   
   public function edit($token) {
-    if (!$transit = $this->Transit->get_entry_by_token($token)) {
+    if (!$transit = $this->transit_model->getEntryByToken($token)) {
       $this->error();
       return false;
     }
     
-    $data['title'] = 'Edit Map';
-    $data['javascript'] = $this->load->view('transit/_add-javascript', null, TRUE);
-    $this->load->view('shared/head', $data);
-    $this->load->view('transit/add', $data);
-    $this->load->view('shared/foot', $data);
-  }
-  
-  public function save($slug){
-    $this->load->model('Transit');
-    
-    $transit = $this->Transit->get_entry_by_slug($slug);    
-    $data = $this->_getData();
-    
-    if ($transit){
-      $this->Transit->update_entry($transit->id, $data);
+    if ($this->input->is_ajax_request()) {
+      $data = $transit;
+      $data->stations = json_decode($transit->stations);
+      echo json_encode($data);
       
     } else {
-      $this->Transit->insert_entry($data);
+      $data['title'] = 'Editing ' . $transit->title;
+      $data['javascript'] = $this->load->view('transit/_add-javascript', null, TRUE);
+      $this->load->view('shared/head', $data);
+      $this->load->view('transit/add', $data);
+      $this->load->view('shared/foot', $data);
     }    
   }
   
-  public function error(){
+  public function save($token){
+    $transit = $this->transit_model->getEntryByToken($token);    
+    $data = $this->_getData();
     
+    if ($transit){
+      $this->transit_model->updateEntry($transit->id, $data);
+      
+    } else {
+      $this->transit_model->insertEntry($data);
+    }
+    
+    echo json_encode(array("message" => "success"));
   }
   
-  private function _cleanData($data){
-    foreach($data as $key => &$value){
-      $value = strip_tags($value);
+  public function user($user){
+    $data = $this->transit_model->getEntriesByUser($user);
+    echo json_encode($data);
+  }
+  
+  public function error(){
+    if ($this->input->is_ajax_request()) {
+      echo json_encode(array("message" => "There was an error"));
+      
+    } else {
+      redirect("/maps/add");
     }
-    return $data;
+  }
+  
+  private function _cleanInput($value){
+    
+    if (!is_numeric($value)) $value = strip_tags($value);
+    
+    return $value;
   }
   
   private function _getData(){
+    $fields = $this->transit_model->accessibleFields();
     $data = array();
-    $data["title"] = $this->input->post("title");
-    $data["stations"] = $this->input->post("stations");
-    return $this->_cleanData($data);
+    
+    foreach($fields as $field){
+      $data[$field] = $this->_cleanInput( $this->input->get_post($field) );
+    }
+    
+    return $data;
   }
   
 }
 
-/* End of file home.php */
+/* End of file transit.php */
 /* Location: ./application/controllers/transit.php */

@@ -13,6 +13,7 @@ class Migration_Add_transit extends CI_Migration {
       'token' => array('type' => 'VARCHAR','constraint' => 40, 'null' => FALSE),
       'title' => array('type' => 'VARCHAR', 'constraint' => 120, 'null' => FALSE),
       'stations' => array('type' => 'TEXT'),
+      'revisions' => array('type' => 'INT', 'unsigned' => TRUE, 'constraint' => 5, 'null' => FALSE, 'default' => 0),
       'date_created' => array('type' => 'INT', 'unsigned' => TRUE, 'constraint' => 10, 'null' => FALSE),
       'date_modified' => array('type' => 'INT', 'unsigned' => TRUE, 'constraint' => 10, 'null' => FALSE)
     ));
@@ -22,7 +23,7 @@ class Migration_Add_transit extends CI_Migration {
     $this->dbforge->add_key('user');
     $this->dbforge->add_key('token');
 
-    $this->dbforge->create_table('transit');    
+    $this->dbforge->create_table('transit');
   }
 
   public function down() {

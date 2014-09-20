@@ -3,12 +3,13 @@ app.views.TransitShowView = Backbone.View.extend({
   el: 'body',
 
   initialize: function(options) {
-    var stations = options.stations,
+    var stations = options.transit.stations,
         width = options.width,
         height = options.height,
         pathInterpolation = options.pathInterpolation,
         lines = [], endLines = [];
     
+    options.title = options.transit.title; 
     stations = this.processStations(stations);    
     height = this.adjustHeight(height, stations.length, options);
     

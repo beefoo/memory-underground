@@ -21,6 +21,9 @@
     
     return rand;
   };
+  helper.floorToNearest = function(num, nearest){
+    return nearest * Math.floor(num/nearest);
+  };
   helper.parameterize = function(str){
     return str.trim().replace(/[^a-zA-Z0-9-\s]/g, '').replace(/[^a-zA-Z0-9-]/g, '-').toLowerCase();
   };  
@@ -67,7 +70,7 @@
   helper.roundToNearest = function(num, nearest){
     return nearest * Math.round(num/nearest);
   };
-  helper.floorToNearest = function(num, nearest){
-    return nearest * Math.floor(num/nearest);
-  };
+  helper.token = function(){
+    return Math.random().toString(36).substr(2);
+  };  
 })();

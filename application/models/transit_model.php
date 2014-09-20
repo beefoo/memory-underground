@@ -6,28 +6,34 @@ class Transit_model extends CI_Model {
     parent::__construct();
   }
   
-  function get_entry_by_slug($slug){
+  function accessibleFields(){
+    return array("slug", "token", "user", "title", "stations", "revisions");
+  }
+  
+  function getEntryBySlug($slug){
     $query = $this->db->get_where('transit', array('slug' => $slug), 1);
     $result = $query->result();    
     return (count($result) > 0) ? $result[0] : FALSE;
   }
   
-  function get_entry_by_token($token){
+  function getEntryByToken($token){
     $query = $this->db->get_where('transit', array('token' => $token), 1);
     $result = $query->result();
     return (count($result) > 0) ? $result[0] : FALSE;
   }
   
-  function get_entries_by_user($user){
+  function getEntriesByUser($user){
     $query = $this->db->get_where('transit', array('user' => $user));
     return $query->result();
   }
   
-  function insert_entry($data) {  
+  function insertEntry($data) {
+    $data['date_created'] = time(); 
     $this->db->insert('transit', $data);
   }
   
-  function update_entry($id, $data) {
+  function updateEntry($id, $data) {
+    $data['date_modified'] = time();
     $this->db->update('transit', $data, array('id' => $id));
   }
   

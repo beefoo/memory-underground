@@ -24,8 +24,13 @@ app.routers.MainRouter = Backbone.Router.extend({
     '': 'home',
     'map/add': 'transitAdd',
     'map/add?*queryString': 'transitAdd',
-    'map/edit/:id': 'transitEdit',
-    'map/:id': 'transitShow'
+    'map/edit/:token': 'transitEdit',
+    'map/:slug/:title': 'transitShow',
+    'map/:slug': 'transitShow'
+  },
+  
+  initialize: function(){
+    
   },
   
   home: function(){
@@ -35,21 +40,39 @@ app.routers.MainRouter = Backbone.Router.extend({
   transitAdd: function(params){
     params = helper.parseQueryString(params);
     params = $.extend({}, config, params);
+    params.user = this._getUser();
     app.views.main = new app.views.TransitAddView(params);
   },
   
-  transitEdit: function(id){
-    $.getJSON( "/data/"+id+".json", function(data) {
-      params = $.extend({}, config, data);
-      app.views.main = new app.views.TransitAddView(params);
+  transitEdit: function(token){
+    var that = this;       
+    
+    $.getJSON( "/map/edit/"+token, function(data) {
+      var transit = new app.models.Transit(data);
+      app.views.main = new app.views.TransitAddView({transit: transit});
     });
   }, 
   
-  transitShow: function(id){
-    $.getJSON( "/data/"+id+".json", function(data) {
-      params = $.extend({}, config, data);
+  transitShow: function(slug){
+    var that = this;
+    
+    $.getJSON( "/map/"+slug, function(data) {
+      var params = $.extend({}, config);
+      params.transit = data;
+      params.user = that._getUser();
       app.views.main = new app.views.TransitShowView(params);
     }); 
+  },
+  
+  _getUser: function(){
+    var user = $.cookie('user');
+    
+    if (!user){
+      user = helper.token();
+      $.cookie('user', user, { expires: 1000 });
+    }
+    
+    return user;
   }
 
 });
