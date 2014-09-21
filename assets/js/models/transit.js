@@ -243,7 +243,8 @@ app.models.Transit = Backbone.Model.extend({
     var stations = [];
     
     this.get('stations').each(function(station){
-      stations.push(station.toSavableJSON());
+      if (station.get('lines').length > 0)
+        stations.push(station.toSavableJSON());
     });
     
     if (stringify){
