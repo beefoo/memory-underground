@@ -75,7 +75,7 @@ app.views.TransitAddView = Backbone.View.extend({
     var listItem = new app.views.MemoryListItem({model: station, transit: this.transit}),
         $listItem = listItem.render().$el;
         
-    this.$("#memories-list").prepend($listItem.addClass('grow-in-down'));
+    this.$("#memories-list").append($listItem.addClass('grow-in-down'));
     this.$('#memories-list').sortable("refresh");
     setTimeout(function(){$listItem.removeClass('grow-in-down')}, 2000);
   },
@@ -258,15 +258,16 @@ app.views.TransitAddView = Backbone.View.extend({
     this.showTab(href);
   },
   
-  sortMemories: function(){
-    var that = this,
-        $items = $('#memories-list > li');
+  sortMemories: function(){    
+    var ids = $('#memories-list').sortable('toArray',{attribute: 'data-id'});
     
-    $items.each(function(i){
-      var id = $(this).attr('data-id'),
-          station = that.transit.get('stations').findWhere({id: id});          
+    for(var i=0; i<ids.length; i++){
+      var id = ids[i],
+          station = this.transit.get('stations').findWhere({id: id});       
       if (station) station.set('order', i, {silent: true});
-    });
+    }
+    
+    this.transit.get('stations').sort();
   },
   
   toggleElement: function(e){

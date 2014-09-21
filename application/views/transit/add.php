@@ -43,7 +43,7 @@
         Keep adding memories until you are ready to see your map, then click the <em>Finish</em> tab above.
         For best results you should have between 10 and 100 memories in total
       </div>        
-      <a href="#add-memory" class="tab-link button expand">Add Another Memory</a>      
+      <a href="#add-memory" class="tab-link button expand">Add Another Memory</a>
       <ul id="memories-list" class="tab-list sortable"></ul>
     </div>
     
