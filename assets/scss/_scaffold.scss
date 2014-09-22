@@ -26,7 +26,7 @@ ul {
   margin: 0;
   padding: 0;
 }
-input {
+input[type="text"] {
   display: block;
   height: 40px;
   line-height: 40px;
@@ -51,6 +51,7 @@ button, .button {
   text-align: center;
   display: inline-block;
   border: none;
+  outline: none;
   @include border-radius(6px);
   &:hover {
     background: $secondaryLight;
@@ -62,6 +63,18 @@ button, .button {
   &.large {
     font-size: 1.4em;
     font-weight: bold;
+  }
+  i:first-child {
+    margin-right: 4px;
+  }
+  i:last-child {
+    margin-left: 4px;
+  }
+  .icon-checkmark {
+    display: none;
+  }
+  &.active .icon-checkmark {
+    display: inline-block;
   }
 }
 button.expand {

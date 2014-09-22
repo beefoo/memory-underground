@@ -143,6 +143,17 @@
   }
 }
 
+.button-group {
+  margin-top: 20px;
+  button {
+    background: #bbb;
+    margin-right: 6px;
+    &.active {
+      background: $green;
+    }
+  }
+}
+
 .toolbar {
   position: fixed;
   top: 5px;

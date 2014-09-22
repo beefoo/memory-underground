@@ -4,8 +4,9 @@ app.views.Util = Backbone.View.extend({
   
   events: {
     "click a[data-focus]": "focusElement",
-    "click .tab-link": "showTabOnClick",    
-    "click .toggle-element": "toggleElement"   
+    "click .tab-link": "showTabOnClick",
+    "click .toggle-active-link": "toggleActive",
+    "click .toggle-element": "toggleElement" 
   },
 
   initialize: function(options) {},
@@ -32,6 +33,12 @@ app.views.Util = Backbone.View.extend({
         href = $link.attr('href');
         
     this.showTab(href);
+  },
+  
+  toggleActive: function(e){
+    e.preventDefault();
+    
+    $(e.currentTarget).toggleClass('active');
   },
   
   toggleElement: function(e){

@@ -75,19 +75,22 @@ app.models.Transit = Backbone.Model.extend({
   defaults: function() {
     return {
       title: 'Untitled Memory Map',
-      revisions: 0
+      legend: 1,
+      labels: 1
     };
   },
   
   initialize: function(){    
     if (!this.get('slug')) this.set('slug', helper.randomString(8));
     if (!this.get('token')) this.set('token', helper.token());
+    if (this.get('legend')) this.set('legend', parseInt(this.get('legend')));
+    if (this.get('labels')) this.set('labels', parseInt(this.get('labels')));
     
     var stationData = this.get('stations'),
         lineData = this.get('lines');
     
     this.set('lines', new app.collections.LineList);
-    this.set('stations', new app.collections.StationList);
+    this.set('stations', new app.collections.StationList);   
     
     if (stationData){
       this.addStationsFromData(stationData);
@@ -290,7 +293,8 @@ app.models.Transit = Backbone.Model.extend({
       slug: this.get('slug'),
       user: this.get('user'),
       token: this.get('token'),
-      revisions: this.get('revisions'),
+      legend: this.get('legend'),
+      labels: this.get('labels'),
       stations: stations,
       lines: lines
     };

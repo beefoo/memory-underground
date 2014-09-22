@@ -7,7 +7,7 @@ class Transit_model extends CI_Model {
   }
   
   function accessibleFields(){
-    return array("slug", "token", "user", "title", "stations", "revisions");
+    return array("slug", "token", "user", "title", "stations", "legend", "labels");
   }
   
   function getEntryBySlug($slug){

@@ -7,7 +7,7 @@ app.views.TransitShowView = Backbone.View.extend({
         width = options.width,
         height = options.height,
         pathInterpolation = options.pathInterpolation,
-        lines = [], endLines = [];
+        lines = [], endLines = [], legend;
     
     options.title = options.transit.title; 
     stations = this.processStations(stations);    
@@ -264,7 +264,9 @@ app.views.TransitShowView = Backbone.View.extend({
   
   drawMap: function(lines, legend, width, height, options){
     var bgColor = options.bgColor,        
-        svg, points, dots, labels, rects;
+        svg, points = [], dots = [], labels = [], rects = [],
+        showLegend = parseInt(options.transit.legend),
+        showLabels = parseInt(options.transit.labels);
     
     // init svg and add to DOM
     svg = d3.select("#svg-wrapper")
@@ -276,13 +278,15 @@ app.views.TransitShowView = Backbone.View.extend({
     // extract points, dots, labels from lines
     points = _.flatten( _.pluck(lines, "points") );
     dots = _.filter(points, function(p){ return p.pointRadius && p.pointRadius > 0; });    
-    labels = _.filter(points, function(p){ return p.label !== undefined || p.symbol !== undefined; });
+    if (showLabels) labels = _.filter(points, function(p){ return p.label !== undefined || p.symbol !== undefined; });
     rects = _.filter(points, function(p){ return p.hubSize; });
     
     // add legend items
-    lines = _.union(lines, legend.lines);
-    dots = _.union(dots, legend.dots);
-    labels = _.union(labels, legend.labels);
+    if (showLegend) {
+      lines = _.union(lines, legend.lines);
+      dots = _.union(dots, legend.dots);
+      labels = _.union(labels, legend.labels);
+    }   
     
     // add styles
     lines = this.addLineStyles(lines, options);
@@ -292,7 +296,7 @@ app.views.TransitShowView = Backbone.View.extend({
     legend.rects = this.addRectStyles(legend.rects, options);
     
     // draw lines, dots, labels, rects
-    this.drawRects(svg, legend.rects);
+    if (showLegend) this.drawRects(svg, legend.rects);
     this.drawLines(svg, lines, options);
     this.drawDots(svg, dots, options);   
     this.drawRects(svg, rects, options);

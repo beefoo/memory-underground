@@ -142,8 +142,11 @@ app.views.TransitAddView = Backbone.View.extend({
   addTransitOnSubmit: function(e){
     e.preventDefault();
     var $form = $(e.currentTarget),
-        title = $form.find('input[name="title"]').val().trim(),
-        data = {title: title};
+        data = {};
+    
+    data.title = $form.find('input[name="title"]').val().trim();
+    data.legend = $form.find('#button-legend').hasClass('active') ? 1 : 0;
+    data.labels = $form.find('#button-labels').hasClass('active') ? 1 : 0;
         
     this.transit.set(data);
     
@@ -180,6 +183,8 @@ app.views.TransitAddView = Backbone.View.extend({
     
     // add transit
     $('#transit-form').find('input[name="title"]').val(this.transit.get('title'));
+    if (this.transit.get('legend') <= 0) $('#button-legend').removeClass('active');
+    if (this.transit.get('labels') <= 0) $('#button-labels').removeClass('active');
   },
   
   isValidMemory: function(data){

@@ -13,7 +13,8 @@ class Migration_Add_transit extends CI_Migration {
       'token' => array('type' => 'VARCHAR','constraint' => 40, 'null' => FALSE),
       'title' => array('type' => 'VARCHAR', 'constraint' => 120, 'null' => FALSE),
       'stations' => array('type' => 'TEXT'),
-      'revisions' => array('type' => 'INT', 'unsigned' => TRUE, 'constraint' => 5, 'null' => FALSE, 'default' => 0),
+      'legend' => array('type' => 'INT', 'unsigned' => TRUE, 'constraint' => 1, 'null' => FALSE, 'unsigned' => TRUE, 'default' => 1),
+      'labels' => array('type' => 'INT', 'unsigned' => TRUE, 'constraint' => 1, 'null' => FALSE, 'unsigned' => TRUE, 'default' => 1),
       'date_created' => array('type' => 'INT', 'unsigned' => TRUE, 'constraint' => 10, 'null' => FALSE),
       'date_modified' => array('type' => 'INT', 'unsigned' => TRUE, 'constraint' => 10, 'null' => FALSE)
     ));
