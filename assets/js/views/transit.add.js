@@ -48,7 +48,7 @@ app.views.TransitAddView = Backbone.View.extend({
     var station = new app.models.Station(data);
         
     this.transit.addStation(station);
-    this.transit.saveLocal();
+    this.transit.autoSave();
     
     this.addMemoryToView(station);
     app.views.util.showTab('#memories');
@@ -109,7 +109,7 @@ app.views.TransitAddView = Backbone.View.extend({
     line = new app.models.Line(lineData);
     if ($input.attr('data-active')) line.set('active', true);    
     this.transit.addLine(line);
-    this.transit.saveLocal();
+    this.transit.autoSave();
     
     this.addPersonToView(line);
     this.$('#add-person-success-message').show();
@@ -240,7 +240,7 @@ app.views.TransitAddView = Backbone.View.extend({
   saveMap: function(){
     this.$('#transit-form button[type="submit"]').prop("disabled",true).text("Saving Map For Viewing...");
     
-    this.transit.save();
+    this.transit.save(true);
   },
   
   showErrorMessage: function(){
@@ -261,12 +261,12 @@ app.views.TransitAddView = Backbone.View.extend({
     }
     
     this.transit.get('stations').sort();
-    this.transit.saveLocal();
+    this.transit.autoSave();
   },
   
   updateMemory: function(station, data) {    
     this.transit.editStation(station, data);
-    this.transit.saveLocal();  
+    this.transit.autoSave();  
     app.views.util.showTab('#memories');
     this.resetForm();
   }
@@ -296,7 +296,7 @@ app.views.PersonListItem = Backbone.View.extend({
   remove: function(e){
     e.preventDefault();
     this.transit.deleteLine(this.model);
-    this.transit.saveLocal();
+    this.transit.autoSave();
   },
   
   render: function() {
@@ -331,7 +331,7 @@ app.views.PersonListItem = Backbone.View.extend({
     
     if (app.views.main.isValidPerson(data)) {
       this.transit.editLine(this.model, data);
-      this.transit.saveLocal();
+      this.transit.autoSave();
       
     } else {
       this.$('.person-edit').val(this.model.get('name'));
@@ -419,7 +419,7 @@ app.views.MemoryListItem = Backbone.View.extend({
   remove: function(e){
     e.preventDefault();
     this.transit.deleteStation(this.model);
-    this.transit.saveLocal();
+    this.transit.autoSave();
   },
   
   render: function() {
@@ -440,6 +440,37 @@ app.views.MemoryListItem = Backbone.View.extend({
   toggleList: function(e) {
     e.preventDefault();
     this.$el.find('.list').toggleClass('active');
+  }
+
+});
+
+app.views.TransitToolbarView = Backbone.View.extend({
+
+  el: '#transit-toolbar',
+
+  initialize: function(options) {
+    
+    if (options.user){
+      this.getUserMaps(options.user);
+    }
+  },
+  
+  addTransitLinks: function(maps){
+    _.each(maps, function(map){
+      $('#transit-list').append($('<a href="/map/edit/'+map.token+'">'+map.title+'</a>'));
+    });
+    
+    if (maps.length > 0 ) {
+      $('#transit-list-link').removeClass('hide');
+    }
+  },
+  
+  getUserMaps: function(user){
+    var that = this;
+    
+    $.getJSON( "/api/map/user/"+user, function(data) {
+      that.addTransitLinks(data);
+    }); 
   }
 
 });

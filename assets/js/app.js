@@ -42,6 +42,7 @@ app.routers.MainRouter = Backbone.Router.extend({
     params = $.extend({}, config, params);
     params.user = this._getUser();
     app.views.main = new app.views.TransitAddView(params);
+    app.views.toolbar = new app.views.TransitToolbarView({user: params.user});
   },
   
   transitEdit: function(token){
@@ -50,6 +51,7 @@ app.routers.MainRouter = Backbone.Router.extend({
     $.getJSON( "/api/map/edit/"+token, function(data) {
       var transit = new app.models.Transit(data);
       app.views.main = new app.views.TransitAddView({transit: transit});
+      app.views.toolbar = new app.views.TransitToolbarView({user: that._getUser()});
     });
   }, 
   

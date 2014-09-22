@@ -74,7 +74,7 @@ app.models.Transit = Backbone.Model.extend({
 
   defaults: function() {
     return {
-      title: '',
+      title: 'Untitled Memory Map',
       revisions: 0
     };
   },
@@ -132,6 +132,17 @@ app.models.Transit = Backbone.Model.extend({
         }
       });
     });
+  },
+  
+  autoSave: function(){
+    // came from server, save to server
+    if (this.get('remote_data')) {
+      this.save(false);
+    
+    // just save locally if not already sent to server
+    } else {
+      this.saveLocal();
+    }
   },
   
   editLine: function(line, data){
@@ -243,13 +254,13 @@ app.models.Transit = Backbone.Model.extend({
     helper.localStoreRemove("transit-map");
   },
   
-  save: function(){
+  save: function(redirect){
     var that = this,
         data = this.toJSON(true);
         
     $.post('/api/map/save/'+this.get('token'), data, function(resp){
       that.resetLocal();
-      window.location = '/map/'+that.get('slug')+'/'+helper.parameterize(that.get('title'));
+      if (redirect) window.location = '/map/'+that.get('slug')+'/'+helper.parameterize(that.get('title'));
     }, 'json');
   },
   

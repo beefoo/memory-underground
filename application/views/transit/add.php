@@ -59,6 +59,17 @@
   
 </div> <!-- / form-wrapper -->
 
+<div id="transit-toolbar" class="toolbar">
+  
+  <a id="transit-list-link" class="toolbar-link hide">
+    View My Memory Maps
+    <ul id="transit-list" class="toolbar-list"></ul>
+  </a>
+  
+  <a href="/" class="toolbar-link">About This Project</a>
+
+</div>
+
 <!-- Templates -->
 <script type="text/template" id="person-list-item">
   <div class="content">

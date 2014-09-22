@@ -15,6 +15,7 @@ class Transit extends CI_Controller {
     }
     
     $data = $transit;
+    $data->token = ""; // hide token for public
     $data->stations = json_decode($transit->stations);
     echo json_encode($data);
   }
@@ -27,6 +28,7 @@ class Transit extends CI_Controller {
     
     $data = $transit;
     $data->stations = json_decode($transit->stations);
+    $data->remote_data = 1;
     echo json_encode($data);  
   }
   
