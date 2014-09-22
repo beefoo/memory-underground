@@ -63,7 +63,8 @@ app.routers.MainRouter = Backbone.Router.extend({
       params.transit = data;
       params.user = that._getUser();
       app.views.main = new app.views.TransitShowView(params);
-    }); 
+      app.views.controls = new app.views.TransitControlsView(params);
+    });
   },
   
   _getUser: function(){

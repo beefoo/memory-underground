@@ -34,7 +34,10 @@
     @include border-radius(4px);    
     &:hover {
       text-decoration: none;
-      background: $tanLight;
+      background: $tan;
+    }
+    &.hide {
+      display: none;
     }
   }
 }

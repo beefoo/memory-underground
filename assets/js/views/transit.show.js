@@ -3,24 +3,9 @@ app.views.TransitShowView = Backbone.View.extend({
   el: 'body',
 
   initialize: function(options) {
-    var stations = options.transit.stations,
-        width = options.width,
-        height = options.height,
-        pathInterpolation = options.pathInterpolation,
-        lines = [], endLines = [], legend;
     
-    options.title = options.transit.title; 
-    stations = this.processStations(stations);    
-    height = this.adjustHeight(height, stations.length, options);
-    
-    // generate lines with points
-    lines = this.makeLines(stations, width, height, options);
-    legend = this.makeLegend(lines, options);
-    endLines = this.makeEndLines(lines, options);
-    lines = _.union(lines, endLines);
-    
-    // draw the svg map
-    this.drawMap(lines, legend, width, height, options);
+    // render the map
+    this.renderMap(options);
     
     // activate pan-zoom
     this.panZoom($("#map-svg"));
@@ -149,11 +134,6 @@ app.views.TransitShowView = Backbone.View.extend({
         // o - output to svg
         case 79:
           if (e.ctrlKey) that.exportSVG();
-          break;
-          
-        // m - output to png
-        case 77:
-          if (e.ctrlKey) that.exportPNG();
           break;
           
         default:
@@ -301,22 +281,6 @@ app.views.TransitShowView = Backbone.View.extend({
     this.drawDots(svg, dots, options);   
     this.drawRects(svg, rects, options);
     this.drawLabels(svg, labels, options);
-  },
-  
-  exportPNG: function(){
-    var content = $("#map-svg").parent().html().trim(),
-        canvas = document.getElementById('svg-canvas');
-
-    // Draw svg on canvas
-    canvg(canvas, content);
-    
-    // Retrieve img data
-    var imgSrc = canvas.toDataURL('image/png'),
-        $link = $('#svg-link');
-        
-    $link.attr('href', imgSrc);
-    $link.attr('download', 'memory-subway-map.png');
-    window.open(imgSrc, '_blank');    
   },
   
   exportSVG: function(){    
@@ -918,6 +882,27 @@ app.views.TransitShowView = Backbone.View.extend({
     return stations;
   },
   
+  renderMap: function(options){
+    var stations = options.transit.stations,
+        width = options.width,
+        height = options.height,
+        pathInterpolation = options.pathInterpolation,
+        lines = [], endLines = [], legend;
+    
+    options.title = options.transit.title; 
+    stations = this.processStations(stations);    
+    height = this.adjustHeight(height, stations.length, options);
+    
+    // generate lines with points
+    lines = this.makeLines(stations, width, height, options);
+    legend = this.makeLegend(lines, options);
+    endLines = this.makeEndLines(lines, options);
+    lines = _.union(lines, endLines);
+    
+    // draw the svg map
+    this.drawMap(lines, legend, width, height, options);
+  },
+  
   translateCoordinates: function(x, y, direction, length){
     var x_direction = 0, y_direction = 0;
     
@@ -938,4 +923,58 @@ app.views.TransitShowView = Backbone.View.extend({
     };
   }
 
+});
+
+app.views.TransitControlsView = Backbone.View.extend({
+  
+  el: '#transit-controls',
+
+  initialize: function(options) {
+    
+    var that = this;
+    
+    this.transit = options.transit;
+    
+    if (options.user){
+      this.getUserMaps(options.user);
+    }
+    
+    setTimeout(function(){
+      that.updateDownloadLink();
+    },options.animationDuration)
+  },
+  
+  getUserMaps: function(user){
+    var that = this;
+    
+    $.getJSON( "/api/map/user/"+user, function(data) {
+      that.updateEditLink(data);
+    });
+  },
+  
+  updateDownloadLink: function(){
+    var content = $("#map-svg").parent().html().trim(),
+        canvas = document.getElementById('svg-canvas');
+
+    // Draw svg on canvas
+    canvg(canvas, content);
+    
+    // Retrieve img data
+    var imgSrc = canvas.toDataURL('image/png'),
+        $link = this.$('.download-link');
+        
+    $link.attr('href', imgSrc);
+    $link.attr('download', 'memory-subway-map.png');
+    $link.removeClass('hide');
+    
+    // window.open(imgSrc, '_blank');  
+  },
+  
+  updateEditLink: function(maps){
+    var match = _.findWhere(maps, {slug: this.transit.slug});
+    if (match){
+      this.$('.edit-link').attr('href', '/map/edit/'+match.token).removeClass('hide')
+    }
+  }
+  
 });
