@@ -7,7 +7,8 @@ app.views.TransitAddView = Backbone.View.extend({
     "submit #memory-form": "addMemoryOnSubmit",
     "click .person-add-link": "addPersonOnClick",    
     "keypress .person-input": "addPersonOnEnter",
-    "submit #transit-form": "addTransitOnSubmit" 
+    "submit #transit-form": "addTransitOnSubmit",
+    "click .add-memory-button": "resetForm"
   },
 
   initialize: function(options) {    
@@ -322,6 +323,7 @@ app.views.PersonListItem = Backbone.View.extend({
     var $link = $(e.currentTarget),
         name = $link.attr('data-name');
     
+    app.views.main.resetForm();
     $('.toggle-select-link').removeClass('active');   
     $('.toggle-select-link[data-name="'+name+'"]').addClass('active');
   },
