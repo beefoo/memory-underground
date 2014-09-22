@@ -30,7 +30,7 @@ app.routers.MainRouter = Backbone.Router.extend({
   },
   
   initialize: function(){
-    
+    app.views.util = new app.views.Util({});
   },
   
   home: function(){

@@ -7,10 +7,7 @@ app.views.TransitAddView = Backbone.View.extend({
     "submit #memory-form": "addMemoryOnSubmit",
     "click .person-add-link": "addPersonOnClick",    
     "keypress .person-input": "addPersonOnEnter",
-    "submit #transit-form": "addTransitOnSubmit",
-    "click a[data-focus]": "focusElement",
-    "click .tab-link": "showTabOnClick",    
-    "click .toggle-element": "toggleElement"   
+    "submit #transit-form": "addTransitOnSubmit" 
   },
 
   initialize: function(options) {    
@@ -54,7 +51,7 @@ app.views.TransitAddView = Backbone.View.extend({
     this.transit.saveLocal();
     
     this.addMemoryToView(station);
-    this.showTab('#memories');
+    app.views.util.showTab('#memories');
     this.resetForm();
     $('#add-memory-success-message').show();
   },
@@ -158,12 +155,6 @@ app.views.TransitAddView = Backbone.View.extend({
     this.saveMap();
   },
   
-  focusElement: function(e){
-    var target = $(e.currentTarget).attr('data-focus');
-    
-    $(target).focus();    
-  },
-  
   initSortable: function(){
     var that = this;
     
@@ -260,24 +251,6 @@ app.views.TransitAddView = Backbone.View.extend({
     alert(message);
   },
   
-  showTab: function(href) {
-    var $tab = $(href),
-        $tabLink = $('.tab-link[href="'+href+'"]');
-        
-    $('.tab, .tab-link').removeClass('active');
-    $tab.addClass('active');
-    $tabLink.addClass('active')
-  },
-  
-  showTabOnClick: function(e){
-    e.preventDefault();
-    
-    var $link = $(e.currentTarget),
-        href = $link.attr('href');
-        
-    this.showTab(href);
-  },
-  
   sortMemories: function(){    
     var ids = $('#memories-list').sortable('toArray',{attribute: 'data-id'});
     
@@ -291,19 +264,10 @@ app.views.TransitAddView = Backbone.View.extend({
     this.transit.saveLocal();
   },
   
-  toggleElement: function(e){
-    e.preventDefault();
-    
-    var href = $(e.currentTarget).attr('href'),
-        $el = $(href);
-        
-    $el.slideToggle();
-  },
-  
   updateMemory: function(station, data) {    
     this.transit.editStation(station, data);
     this.transit.saveLocal();  
-    this.showTab('#memories');
+    app.views.util.showTab('#memories');
     this.resetForm();
   }
 
@@ -445,7 +409,7 @@ app.views.MemoryListItem = Backbone.View.extend({
       $form.find('.toggle-select-link[data-name="'+line.name+'"]').addClass('active');
     });
     
-    app.views.main.showTab('#add-memory');
+    app.views.util.showTab('#add-memory');
     
     $('html, body').animate({
       scrollTop: $form.offset().top

@@ -6,6 +6,7 @@
   <script type="text/javascript" src="<?=base_url('/assets/js/config.js')?>"></script>
   <script type="text/javascript" src="<?=base_url('/assets/js/helpers.js')?>"></script>
   <script type="text/javascript" src="<?=base_url('/assets/js/app.js')?>"></script>
+  <script type="text/javascript" src="<?=base_url('/assets/js/views/util.js')?>"></script>
   
   <?= $javascript ? $javascript : '' ?>
 </body>
