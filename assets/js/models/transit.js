@@ -83,7 +83,8 @@ app.models.Transit = Backbone.Model.extend({
     if (!this.get('slug')) this.set('slug', helper.randomString(8));
     if (!this.get('token')) this.set('token', helper.token());
     
-    var stationData = this.get('stations');
+    var stationData = this.get('stations'),
+        lineData = this.get('lines');
     
     this.set('lines', new app.collections.LineList);
     this.set('stations', new app.collections.StationList);
@@ -91,12 +92,27 @@ app.models.Transit = Backbone.Model.extend({
     if (stationData){
       this.addStationsFromData(stationData);
       this.addLinesFromStations();     
-    }  
+    }
+    
+    if (lineData){
+      this.addLines(lineData);
+    }
   },
   
   addLine: function(line) {    
     this.get('lines').add(line);
     return line;
+  },
+  
+  addLines: function(lineNames){
+    var that = this;
+    
+    _.each(lineNames, function(name){
+      var line = that.get('lines').findWhere({name: name});
+      if (!line){
+        that.get('lines').add(new app.models.Line({name: name, stations: []}));
+      }
+    });
   },
   
   addLinesFromStations: function(){
@@ -223,32 +239,39 @@ app.models.Transit = Backbone.Model.extend({
     station.clear();
   },
   
+  resetLocal: function(){
+    helper.localStoreRemove("transit-map");
+  },
+  
   save: function(){
     var that = this,
         data = this.toJSON(true);
         
     $.post('/api/map/save/'+this.get('token'), data, function(resp){
+      that.resetLocal();
       window.location = '/map/'+that.get('slug')+'/'+helper.parameterize(that.get('title'));
     }, 'json');
   },
   
-  saveLocal: function(){
-    if (!Modernizr.localstorage) return false;
-    
+  saveLocal: function(){       
     var data = this.toJSON();    
-    //localStorage.setItem("transit-map-"+this.get("slug"), data);
+    helper.localStoreSet("transit-map", data);
   },
   
   toJSON: function(stringify){
-    var stations = [];
+    var stations = [],
+        lines = [];
     
     this.get('stations').each(function(station){
       if (station.get('lines').length > 0)
         stations.push(station.toSavableJSON());
     });
     
+    lines = this.get('lines').pluck('name');
+    
     if (stringify){
       stations = JSON.stringify(stations);
+      lines = JSON.stringify(stations);
     }
     
     return {
@@ -257,7 +280,8 @@ app.models.Transit = Backbone.Model.extend({
       user: this.get('user'),
       token: this.get('token'),
       revisions: this.get('revisions'),
-      stations: stations
+      stations: stations,
+      lines: lines
     };
   }
 

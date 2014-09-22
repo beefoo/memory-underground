@@ -13,14 +13,32 @@ app.views.TransitAddView = Backbone.View.extend({
     "click .toggle-element": "toggleElement"   
   },
 
-  initialize: function(options) {
-    
+  initialize: function(options) {    
     this.initSortable();
     
-    if (options.transit) {
-      this.transit = options.transit;
-      this.initTransit();
+    var localTransit = helper.localStore("transit-map"),
+        remoteTransit = options.transit;
+
+    // transit map loaded from local storage
+    if (localTransit) {
       
+      // if remote transit doesn't match local, take remote version
+      if (remoteTransit && options.transit.get('slug') != localTransit.slug) {
+        this.transit = remoteTransit;
+      
+      // otherwise, take the local version
+      } else {
+        this.transit = new app.models.Transit(localTransit);
+      }
+      
+      this.initTransit();
+    
+    // transit map loaded from server
+    } else if (remoteTransit) {
+      this.transit = remoteTransit;
+      this.initTransit();
+    
+    // create a new map
     } else {
       this.transit = new app.models.Transit({user: options.user});
     }
@@ -33,6 +51,7 @@ app.views.TransitAddView = Backbone.View.extend({
     var station = new app.models.Station(data);
         
     this.transit.addStation(station);
+    this.transit.saveLocal();
     
     this.addMemoryToView(station);
     this.showTab('#memories');
@@ -93,6 +112,7 @@ app.views.TransitAddView = Backbone.View.extend({
     line = new app.models.Line(lineData);
     if ($input.attr('data-active')) line.set('active', true);    
     this.transit.addLine(line);
+    this.transit.saveLocal();
     
     this.addPersonToView(line);
     this.$('#add-person-success-message').show();
@@ -268,6 +288,7 @@ app.views.TransitAddView = Backbone.View.extend({
     }
     
     this.transit.get('stations').sort();
+    this.transit.saveLocal();
   },
   
   toggleElement: function(e){
@@ -280,7 +301,8 @@ app.views.TransitAddView = Backbone.View.extend({
   },
   
   updateMemory: function(station, data) {    
-    this.transit.editStation(station, data);    
+    this.transit.editStation(station, data);
+    this.transit.saveLocal();  
     this.showTab('#memories');
     this.resetForm();
   }
@@ -310,6 +332,7 @@ app.views.PersonListItem = Backbone.View.extend({
   remove: function(e){
     e.preventDefault();
     this.transit.deleteLine(this.model);
+    this.transit.saveLocal();
   },
   
   render: function() {
@@ -344,6 +367,7 @@ app.views.PersonListItem = Backbone.View.extend({
     
     if (app.views.main.isValidPerson(data)) {
       this.transit.editLine(this.model, data);
+      this.transit.saveLocal();
       
     } else {
       this.$('.person-edit').val(this.model.get('name'));
@@ -431,6 +455,7 @@ app.views.MemoryListItem = Backbone.View.extend({
   remove: function(e){
     e.preventDefault();
     this.transit.deleteStation(this.model);
+    this.transit.saveLocal();
   },
   
   render: function() {

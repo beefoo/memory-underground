@@ -24,6 +24,21 @@
   helper.floorToNearest = function(num, nearest){
     return nearest * Math.floor(num/nearest);
   };
+  helper.localStore = function(key){
+    if (!Modernizr.localstorage) return false;
+       
+    return JSON.parse(localStorage.getItem(key));
+  };
+  helper.localStoreRemove = function(key){
+    if (!Modernizr.localstorage) return false;
+    
+    localStorage.removeItem(key);
+  };
+  helper.localStoreSet = function(key, value){
+    if (!Modernizr.localstorage) return false;
+    
+    localStorage.setItem(key, JSON.stringify(value));
+  };
   helper.parameterize = function(str){
     return str.trim().replace(/[^a-zA-Z0-9-\s]/g, '').replace(/[^a-zA-Z0-9-]/g, '-').toLowerCase();
   };  
