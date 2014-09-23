@@ -66,7 +66,7 @@
   helper.randomString = function(length){
     var text = "",
         alpha = "abcdefghijklmnopqrstuvwxyz",
-        alphanum = "abcdefghijklmnopqrstuvwxyz0123456789 ",
+        alphanum = "abcdefghijklmnopqrstuvwxyz0123456789",
     length = length || 8;
     for( var i=0; i < length; i++ ) {
       if ( i <= 0 ) { // must start with letter

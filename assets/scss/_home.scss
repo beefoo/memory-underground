@@ -2,8 +2,8 @@
 @import "variables";
 
 $sidebarWidth: 400px;
-$sidebarHeight: 800px;
-$breakPoint: 900px;
+$sidebarHeight: 1350px;
+$homeBreakPoint: 900px;
 
 .home-wrapper {
   @include clearfix();
@@ -18,6 +18,9 @@ $breakPoint: 900px;
   min-height: $sidebarHeight;
   h1, h2 {
     color: $light;
+  }
+  h1 {
+    line-height: 1.6em;
   }
   a {
     color: $secondaryLight;
@@ -53,11 +56,35 @@ $breakPoint: 900px;
   }
   h3 {
     margin-top: 10px;
+    font-size: 1.1em;
+  }
+}
+
+.step {
+  background: lighten($light, 5%);
+  margin-bottom: 12px;
+  @include clearfix();
+  h4,
+  img {
+    display: block;
+    width: 50%;
+    @include box-sizing();
+  }
+  h4 {    
+    padding: 20px;    
+    float: left;
+    color: $dark;   
+  }
+  img {
+    display: block;
+    float: right;
+    border-left: 1px solid $tanLight;
+    margin-left: -1px;
   }
 }
 
 
-@media (max-width: $breakPoint) {
+@media (max-width: $homeBreakPoint) {
   .home-sidebar {
     float: none;
     margin: 0 auto;

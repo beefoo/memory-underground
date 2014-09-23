@@ -4,7 +4,8 @@
   
     <div class="home-description container">
     
-      <h1><span>The Memory Underground</span></h1>
+      <h1><span class="circle">T</span>he <span class="circle">M</span>emory<br />
+        <span class="circle">U</span>nderground</h1>
       
       <h3>Convert a list of memories into a downloadable &amp; printable subway map</h3>
       
@@ -25,17 +26,24 @@
       
       <h2>How It Works</h2>
       
-      <div class="row">
-        <div class="col span-third">
-          <h4>1. People Become Train Lines</h4>
+      <div class="steps">
+        
+        <div class="step">
+          <h4><span class="circle">1</span> People Are Converted To Train Lines</h4>
+          <img src="/assets/img/home_step1.png" alt="People Are Converted To Train Lines" />
         </div>
-        <div class="col span-third">
-          <h4>2. Memories With A Person Become Their Train Stations</h4>
+        
+        <div class="step">
+          <h4><span class="circle">2</span> Memories With A Person Become Their Train Stations</h4>
+          <img src="/assets/img/home_step2.png" alt="Memories With A Person Become Their Train Stations" />
         </div>
-        <div class="col span-third">
-          <h4>3. Memories With Multiple People Become Transfer Stations</h4>
+        
+        <div class="step">
+          <h4><span class="circle">3</span> Memories With Multiple People Become Transfer Stations</h4>
+          <img src="/assets/img/home_step3.png" alt="Memories With Multiple People Become Transfer Stations" />
         </div>
-      </div>   
+      
+      </div>
       
       <p>Read more about the methodology <a href="https://medium.com/@beefoo/building-a-memory-transit-map-82c2a05e456e" target="_blank">here</a>.</p>
     

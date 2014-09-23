@@ -135,6 +135,25 @@ button.expand {
   }
 }
 
+.circle {
+  background: $red;
+  color: $white;  
+  display: inline-block;
+  vertical-align: middle;
+  text-align: center;
+  height: 40px;
+  width: 40px;
+  line-height: 42px;
+  font-size: 0.8em;
+  @include border-radius(20px);
+}
+h4 .circle {
+  height: 20px;
+  width: 20px;
+  line-height: 20px;
+  @include border-radius(10px);
+}
+
 [data-tooltip] {
   position: relative;
   z-index: 2;
