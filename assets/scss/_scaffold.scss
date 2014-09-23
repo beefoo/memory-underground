@@ -124,3 +124,50 @@ button.expand {
     }
   }
 }
+
+[data-tooltip] {
+  position: relative;
+  z-index: 2;
+  cursor: pointer;
+}
+[data-tooltip]:before,
+[data-tooltip]:after {
+  position: absolute;
+  visibility: hidden;   
+  bottom: 50%;
+  left: 100%;
+  @include opacity(0);
+  pointer-events: none; 
+}
+[data-tooltip]:before {
+  display: block;
+  height: 20px;
+  line-height: 20px;
+  margin-bottom: -10px;
+  margin-left: 5px;
+  background: rgba($dark, 0.9);
+  color: #fff;  
+  text-align: center;
+  font-size: 12px;
+  content: attr(data-tooltip);
+  white-space: nowrap;
+  padding: 0 6px;
+  @include box-sizing();
+  @include border-radius(3px);
+}
+[data-tooltip]:after {
+  margin-left: 0px;
+  margin-bottom: -5px;
+  width: 0;
+  border-top: 5px solid transparent;
+  border-right: 5px solid rgba($dark, 0.9);
+  border-bottom: 5px solid transparent;  
+  content: " ";
+  font-size: 0;
+  line-height: 0;
+}
+[data-tooltip]:hover:before,
+[data-tooltip]:hover:after {
+  visibility: visible;
+  @include opacity(1);
+}

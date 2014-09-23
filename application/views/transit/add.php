@@ -68,7 +68,7 @@
 <div id="transit-toolbar" class="toolbar">
   
   <a id="transit-list-link" class="toolbar-link hide">
-    View My Memory Maps <i class="icon icon-triangle-down"></i>
+    My Memory Maps <i class="icon icon-triangle-down"></i>
     <ul id="transit-list" class="toolbar-list"></ul>
   </a>
   
