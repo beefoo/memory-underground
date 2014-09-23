@@ -3,6 +3,7 @@
 
 $sidebarWidth: 400px;
 $sidebarHeight: 800px;
+$breakPoint: 900px;
 
 .home-wrapper {
   @include clearfix();
@@ -50,4 +51,35 @@ $sidebarHeight: 800px;
   h1, h3 {
     margin: 0;
   }
+  h3 {
+    margin-top: 10px;
+  }
 }
+
+
+@media (max-width: $breakPoint) {
+  .home-sidebar {
+    float: none;
+    margin: 0 auto;
+    background: rgba($dark, 0.9);
+  }
+  .home-description {
+    background: rgba($dark, 0.5);
+  }
+  .home-main {
+    z-index: -1;
+    margin-left: 0;
+    width: 100%;
+    height: 100%;
+    position: fixed;
+    top: 0;
+    left: 0;
+  }
+}
+
+@media (max-width: $sidebarWidth) {
+  .home-sidebar {
+    width: auto;
+  }
+}
+
