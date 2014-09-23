@@ -21,6 +21,14 @@ class Transit extends CI_Controller {
     $this->load->view('shared/foot', $data);
   }
   
+  public function demo(){
+    $data['title'] = "Demo";
+    $data['javascript'] = $this->load->view('transit/_show-javascript', null, TRUE); 
+    $this->load->view('shared/head', $data);
+    $this->load->view('transit/show', $data);
+    $this->load->view('shared/foot', $data);
+  }
+  
   public function add() {
     $data['title'] = 'Build A Map';
     $data['javascript'] = $this->load->view('transit/_add-javascript', null, TRUE); 

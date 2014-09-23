@@ -1,3 +1,53 @@
 @import "mixins";
 @import "variables";
 
+$sidebarWidth: 400px;
+$sidebarHeight: 800px;
+
+.home-wrapper {
+  @include clearfix();
+}
+
+.home-sidebar {
+  position: relative;
+  width: $sidebarWidth;
+  float: left;  
+  background: $dark;
+  color: $white;
+  min-height: $sidebarHeight;
+  h1, h2 {
+    color: $light;
+  }
+  a {
+    color: $secondaryLight;
+    &:hover {
+      color: lighten($secondaryLight, 10%);
+    }
+    &.button {
+      color: $white;
+    }
+  }
+  @include box-sizing();
+}
+
+.home-main {
+  position: relative;
+  margin-left: $sidebarWidth;
+  min-height: $sidebarHeight;
+}
+
+.container {
+  padding: 20px;
+}
+
+.svg-wrapper.home {
+  z-index: 0;
+  position: absolute;
+}
+
+.home-description {
+  background: lighten($dark, 4%);
+  h1, h3 {
+    margin: 0;
+  }
+}

@@ -80,6 +80,12 @@ button, .button {
 button.expand {
   width: 100%;
 }
+.button-group {
+  .button:first-child,
+  button:first-child {
+    margin-right: 4px;
+  }
+}
 .message {
   margin: 10px 0;
   padding: 6px 12px;

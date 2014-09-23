@@ -45,6 +45,8 @@ $route['map/(add|edit)([/|_].*)?'] = 'transit/$1$2';
 $route['map/([a-z0-9]+)/(:any)'] = 'transit/show/$1';
 $route['map/(:any)'] = 'transit/show/$1';
 
+$route['demo'] = 'transit/demo';
+
 $route['default_controller'] = "home";
 $route['404_override'] = '';
 
