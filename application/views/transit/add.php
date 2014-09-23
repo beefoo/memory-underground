@@ -3,7 +3,7 @@
   <div class="form-tab-links">
     <a href="#people" class="tab-link active">People <small>(Trains)</small></a>
     <a href="#memories" class="tab-link">Memories <small>(Stations)</small></a>
-    <a href="#finish" class="tab-link">Finish</a>
+    <a href="#finish" class="tab-link">Finish &amp; View</a>
   </div>
   
   <div class="form-tabs">
@@ -18,7 +18,7 @@
         <a href="#add-person" class="person-add-link">Add</a>
       </div>
       <div id="add-person-success-message" class="message success hide">
-        Great! Keep adding names of people, then start adding memories by clicking <em>add a memory</em> next to each person. For best results,
+        Keep adding names of people, then start adding memories by clicking <em>add a memory</em> next to each person. For best results,
         add at least 2 memories per person.
       </div>
       <ul id="people-list" class="tab-list"></ul>
@@ -41,9 +41,13 @@
     </div>
     
     <div id="memories" class="tab">      
-      <div id="add-memory-success-message" class="message success hide">
-        Keep adding memories until you are ready to see your map, then click the <em>Finish</em> tab above.
-        For best results you should have between 10 and 100 memories in total
+      <div id="add-memory-success-message" class="message success">
+        <strong>Tips:</strong>
+        <ul>
+          <li>Add memories until you are ready to see your map, then click the <em>Finish &amp; View</em> tab above.</li>
+          <li>For best results you should have between 10 and 100 memories in total.</li>
+          <li>Memories should be listed in chronological order; you can drag memories up or down to change their order.</li>
+        </ul>         
       </div>        
       <a href="#add-memory" class="tab-link button expand add-memory-button"><i class="icon icon-plus"></i> Add Another Memory</a>
       <ul id="memories-list" class="tab-list sortable"></ul>

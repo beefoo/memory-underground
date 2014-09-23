@@ -91,6 +91,10 @@ button.expand {
     background: $greenLight;
     color: $greenDark;
   }
+  ul {
+    margin-left: 18px;
+    list-style-type: disc;
+  }
 }
 .hide {
   display: none;
