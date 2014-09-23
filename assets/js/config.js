@@ -28,7 +28,7 @@ var config = {
   "minXDiff": 5,
   "hubSize": 4,
   "animate": true,
-  "animationDuration": 5000,
+  "animationDuration": 4000,
   "colors": [
     {"hex":"#E5303C","group":"red"},
     {"hex":"#F6802C","group":"orange"},

@@ -11,4 +11,4 @@
   
   <link rel="stylesheet" href="<?=base_url('assets/css/app.css')?>">
 </head>
-<body>
+<body class="<?= $this->router->fetch_class() ?>-<?= $this->router->fetch_method() ?>">

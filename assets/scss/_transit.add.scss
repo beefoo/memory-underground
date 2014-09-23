@@ -1,16 +1,65 @@
 @import "mixins";
 @import "variables";
 
-.form-wrapper {
-  width: 100%;
-  padding: 20px 10px;
-  max-width: 600px;
-  margin: 0 auto;
-  position: relative;
-  @include box-sizing();
-  @media (max-width: 1350px) {
-    padding-top: 50px;
+$formBreakpoint: 1100px;
+$formWidth: 600px;
+$previewHeight: 800px;
+
+body.transit-add {
+  background: #f4f4f4;
+  @media (max-width: $formBreakpoint) {
+    background: $white;
   }
+}
+
+.transit-add-wrapper {
+  position: relative;
+  z-index: 1;
+  @include clearfix();
+}
+
+.form-wrapper { 
+  position: relative;
+  width: $formWidth;
+  float: left;
+  @include box-sizing();
+  
+  @media (max-width: $formBreakpoint) {
+    float: none;
+    width: 100%;
+    max-width: $formWidth;
+    margin: 20px auto 0;
+    padding: 50px 20px 10px;
+  }
+}
+
+.preview-wrapper {
+  position: relative;
+  width: auto;
+  min-height: $previewHeight;
+  margin-top: 50px;
+  margin-right: 20px;
+  margin-left: $formWidth + 20;
+  background: $white;
+  .empty-message {
+    text-align: center;
+    width: 300px;
+    height: 100px;
+    position: absolute;
+    top: 50%;
+    left: 50%;
+    margin-top: -50px;
+    margin-left: -150px;
+    font-size: 1em;
+    color: #888;
+  }
+  @media (max-width: $formBreakpoint) {
+    display: none; 
+  }
+}
+.svg-wrapper.preview {
+  z-index: 0;
+  position: absolute;
 }
 
 .form-tab-links {
@@ -38,12 +87,18 @@
       border-bottom: 1px dashed darken($light, 5%);
     }
     &:first-child {
-      @include border-radius(6px 0px 0px 0px);
       border-left: none;
       margin-left: 0;
     }
-    &:last-child {
-      @include border-radius(0px 6px 0px 0px);
+    @media (max-width: $formBreakpoint) {
+      &:first-child {
+        @include border-radius(6px 0px 0px 0px);
+        border-left: none;
+        margin-left: 0;
+      }
+      &:last-child {
+        @include border-radius(0px 6px 0px 0px);
+      }
     }
   }
 }
@@ -51,7 +106,9 @@
 .form-tabs {
   padding: 10px 20px 40px;
   background: lighten($light, 10%);
-  @include border-radius(0 0 6px 6px);
+  min-height: $previewHeight - 40;
+  border-right: 1px solid $light;
+  border-bottom: 1px solid $light;
   
   .tab {
     max-height: 0;
@@ -65,6 +122,12 @@
   
   button[type="submit"] {
     margin-top: 20px;
+  }
+  
+  @media (max-width: $formBreakpoint) {
+    min-height: 0;
+    border: none;
+    @include border-radius(0 0 6px 6px);
   }
 }
 
@@ -168,7 +231,8 @@
   padding: 0 6px;
   height: 28px;
   line-height: 28px;
-  border: 1px solid $white;
+  border: 1px solid #ccc;
+  background: $white;
   .toolbar-list {
     background: $white;
     display: none;
