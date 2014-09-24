@@ -42,8 +42,9 @@ app.routers.MainRouter = Backbone.Router.extend({
       params.transit.labels = 1;
       params.animationDuration = 10000;
       params.user = false;
-      app.views.main = new app.views.TransitShowView(params);
+      app.views.main = new app.views.TransitShowView();
       app.views.controls = new app.views.TransitControlsView(params);
+      app.views.main.render(params);
     });
   },
   
@@ -55,7 +56,8 @@ app.routers.MainRouter = Backbone.Router.extend({
       params.transit.labels = 1;
       params.padding = [200, 100];
       params.animationDuration = 10000;
-      app.views.main = new app.views.TransitShowView(params);
+      app.views.main = new app.views.TransitShowView();
+      app.views.main.render(params);
     });
   },
   
@@ -63,6 +65,8 @@ app.routers.MainRouter = Backbone.Router.extend({
     params = helper.parseQueryString(params);
     params = $.extend({}, config, params);
     params.user = this._getUser();
+    
+    app.views.preview = new app.views.TransitShowView();
     app.views.main = new app.views.TransitAddView(params);
     app.views.toolbar = new app.views.TransitToolbarView({user: params.user});
   },
@@ -72,6 +76,7 @@ app.routers.MainRouter = Backbone.Router.extend({
     
     $.getJSON( "/api/map/edit/"+token, function(data) {
       var transit = new app.models.Transit(data);
+      app.views.preview = new app.views.TransitShowView();
       app.views.main = new app.views.TransitAddView({transit: transit});
       app.views.toolbar = new app.views.TransitToolbarView({user: that._getUser()});
     });
@@ -84,8 +89,9 @@ app.routers.MainRouter = Backbone.Router.extend({
       var params = $.extend({}, config);
       params.transit = data;
       params.user = that._getUser();
-      app.views.main = new app.views.TransitShowView(params);
+      app.views.main = new app.views.TransitShowView();
       app.views.controls = new app.views.TransitControlsView(params);
+      app.views.main.render(params);
     });
   },
   

@@ -2,6 +2,8 @@ var config = {
   "width": 2400,
   "height": 3600,
   "yUnit": 50,
+  "xUnit": 80,
+  "minWidth": 1000,
   "bgColor": "#f2e9b8",
   "padding": [200, 200],  
   "textColor": "#000000",  
@@ -28,7 +30,7 @@ var config = {
   "minXDiff": 5,
   "hubSize": 4,
   "animate": true,
-  "animationDuration": 4000,
+  "animationDuration": 2000,
   "colors": [
     {"hex":"#E5303C","group":"red"},
     {"hex":"#F6802C","group":"orange"},
@@ -67,13 +69,14 @@ var config = {
     {"hex":"#A09D9A","group":"gray"}
   ],
   "legend": {
-    "width": 800,
-    "padding": 50,
-    "bgColor": "#e8ddc2",
+    "padding": 40,
+    "bgColor": "#e8ddc2",    
     "columns": 2,
-    "titleFontSize": 32,
+    "columnThreshold": 12,
+    "columnWidth": 320,
+    "titleFontSize": 24,
     "titleMaxLineChars": 30,
-    "titleLineHeight": 40,
+    "titleLineHeight": 30,
     "fontSize": 14,
     "lineHeight": 30,
     "gridUnit": 20

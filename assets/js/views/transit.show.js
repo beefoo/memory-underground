@@ -2,14 +2,7 @@ app.views.TransitShowView = Backbone.View.extend({
 
   el: 'body',
 
-  initialize: function(options) {
-    
-    // render the map
-    this.renderMap(options);
-    
-    // activate pan-zoom
-    this.panZoom($("#map-svg"));
-    
+  initialize: function() {
     // add listeners
     this.addListeners();
   },
@@ -155,6 +148,22 @@ app.views.TransitShowView = Backbone.View.extend({
     
     return height;
   },
+  
+  adjustWidth: function(width, stationCount, options){
+    var xUnit = options.xUnit,
+        paddingX = options.padding[0],
+        activeW = width - paddingX*2;
+    
+    // make height shorter if not enough stations
+    if (Math.floor(width/stationCount) > xUnit) {
+      activeW = xUnit*stationCount;
+      width = activeW + paddingX*2;
+    }
+    
+    width = _.max([options.minWidth, width]);
+    
+    return width;
+  },
 
   drawDots: function(svg, dots) {
     svg.selectAll("dot")
@@ -247,6 +256,11 @@ app.views.TransitShowView = Backbone.View.extend({
         svg, points = [], dots = [], labels = [], rects = [],
         showLegend = parseInt(options.transit.legend),
         showLabels = parseInt(options.transit.labels);
+    
+    // reset if already there
+    if ($("#map-svg").length > 0) {
+      $("#map-svg").remove();
+    }
     
     // init svg and add to DOM
     svg = d3.select("#svg-wrapper")
@@ -580,17 +594,17 @@ app.views.TransitShowView = Backbone.View.extend({
     return endLines;
   },
   
-  makeLegend: function(lines, options){    
+  makeLegend: function(width, lines, options){    
     var // options
-        canvasWidth = options.width,
+        canvasWidth = width,
         canvasPaddingX = options.padding[0],
         canvasPaddingY = options.padding[1],
         title = options.title,
         pointRadius = options.pointRadius,
         pointRadiusLarge = options.pointRadiusLarge,
-        borderWidth = options.borderWidth,
-        width = options.legend.width,
-        columns = options.legend.columns,        
+        borderWidth = options.borderWidth,        
+        columns = lines.length > options.legend.columnThreshold ? options.legend.columns : 1,
+        legendWidth = options.legend.columnWidth * columns,     
         padding = options.legend.padding,
         bgColor = options.legend.bgColor,
         titleFontSize = options.legend.titleFontSize,
@@ -600,9 +614,9 @@ app.views.TransitShowView = Backbone.View.extend({
         lineHeight = options.legend.lineHeight,
         gridUnit = options.legend.gridUnit,
         // calculations
-        columnWidth = Math.floor((width-padding*2)/columns),        
+        columnWidth = Math.floor((legendWidth-padding*2)/columns),        
         titleLines = this.getTitleLines(title, titleMaxLineChars),        
-        x1 = canvasWidth - width - canvasPaddingX - borderWidth*2,
+        x1 = legendWidth >= canvasWidth/2 ? canvasWidth - legendWidth - padding - borderWidth*2 : canvasWidth/2,
         y1 = canvasPaddingY,
         lineCount = lines.length,
         height = padding *2 + lineHeight*Math.ceil(lineCount/columns) + titleLineHeight*titleLines.length,        
@@ -627,7 +641,7 @@ app.views.TransitShowView = Backbone.View.extend({
     
     // create rectangle
     legend.rects.push({
-      width: width,
+      width: legendWidth,
       height: height,
       rectX: x1,
       rectY: y1,
@@ -853,6 +867,10 @@ app.views.TransitShowView = Backbone.View.extend({
   },
   
   panZoom: function($selector){    
+    if ($selector.panzoom("instance")) {
+      $selector.panzoom("reset");
+      $selector.panzoom("destroy");
+    }      
     var $panzoom = $selector.panzoom({
       $zoomIn: $('.svg-zoom-in'),
       $zoomOut: $('.svg-zoom-out')
@@ -882,6 +900,17 @@ app.views.TransitShowView = Backbone.View.extend({
     return stations;
   },
   
+  render: function(options){
+    // reset halton sequence index
+    helper.hRandomIndex = 0;
+    
+    // render the map
+    this.renderMap(options);
+    
+    // activate pan-zoom
+    this.panZoom($("#map-svg"));    
+  },
+  
   renderMap: function(options){
     var stations = options.transit.stations,
         width = options.width,
@@ -892,10 +921,11 @@ app.views.TransitShowView = Backbone.View.extend({
     options.title = options.transit.title; 
     stations = this.processStations(stations);    
     height = this.adjustHeight(height, stations.length, options);
+    width = this.adjustWidth(width, stations.length, options);
     
     // generate lines with points
     lines = this.makeLines(stations, width, height, options);
-    legend = this.makeLegend(lines, options);
+    legend = this.makeLegend(width, lines, options);
     endLines = this.makeEndLines(lines, options);
     lines = _.union(lines, endLines);
     

@@ -77,6 +77,8 @@
       A preview of your map will display once you add at least one memory
     </div>
     
+    <div id="svg-wrapper" class="svg-wrapper preview"></div>
+    
   </div> <!-- / preview-wrapper -->
 
 </div> <!-- / transit-add-wrapper -->

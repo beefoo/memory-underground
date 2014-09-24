@@ -6,7 +6,7 @@ $formWidth: 600px;
 $previewHeight: 800px;
 
 body.transit-add {
-  background: #f4f4f4;
+  background: #f1f1f1;
   @media (max-width: $formBreakpoint) {
     background: $white;
   }
@@ -246,6 +246,7 @@ body.transit-add {
       display: block;
       padding: 3px 6px;
       text-align: left;
+      font-size: 0.8em;
       &:hover {
         background: lighten($light, 10%);
       }
