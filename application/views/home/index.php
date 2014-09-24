@@ -16,8 +16,7 @@
       </p>
       
       <div class="button-group">
-        <a href="/map/add" class="button">Build Your Map</a>
-        <a href="/demo" class="button">View An Example</a>
+        <a href="/map/add" class="button large">Build Your Memory Map</a>        
       </div>
     
     </div>
@@ -45,7 +44,8 @@
       
       </div>
       
-      <p>Read more about the methodology <a href="https://medium.com/@beefoo/building-a-memory-transit-map-82c2a05e456e" target="_blank">here</a>.</p>
+      <p>Read more about the methodology <a href="https://medium.com/@beefoo/building-a-memory-transit-map-82c2a05e456e" target="_blank">here</a>.
+        View an example <a href="/demo">here</a>.</p>
     
     </div>
   
