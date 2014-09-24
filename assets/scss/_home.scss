@@ -63,6 +63,7 @@ $homeBreakPoint: 900px;
 .step {
   background: lighten($light, 5%);
   margin-bottom: 12px;
+  padding-left: 25px ;
   @include clearfix();
   h4,
   img {
@@ -73,7 +74,10 @@ $homeBreakPoint: 900px;
   h4 {    
     padding: 20px;    
     float: left;
-    color: $dark;   
+    color: $dark;
+    .circle {
+      margin-left: -25px;
+    } 
   }
   img {
     display: block;
