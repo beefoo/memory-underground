@@ -203,9 +203,10 @@ app.views.TransitShowView = Backbone.View.extend({
       .attr("x", function(d) { return d.labelX; })
       .attr("y", function(d) { return d.labelY; })
       .attr("text-anchor",function(d){ return d.anchor; })
-      .attr("alignment-baseline",function(d){ return d.alignment; })     
+      .attr("alignment-baseline",function(d){ return d.alignment; })
+      .attr("dominant-baseline",function(d){ return d.alignment; })      
+      .attr("font-size", function(d){ return d.fontSize; })
       .style("font-family", function(d){ return d.fontFamily; })
-      .style("font-size", function(d){ return d.fontSize; })
       .style("font-weight", function(d){ return d.fontWeight; })
       .style("fill", function(d){ return d.textColor; });
   },
@@ -267,7 +268,8 @@ app.views.TransitShowView = Backbone.View.extend({
       .append("svg")
       .attr("id", "map-svg")
       .attr("width", width)
-      .attr("height", height);
+      .attr("height", height)
+      .attr("preserveAspectRatio", "xMidYMid meet");
             
     // extract points, dots, labels from lines
     points = _.flatten( _.pluck(lines, "points") );
