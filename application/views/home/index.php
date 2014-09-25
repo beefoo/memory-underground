@@ -53,6 +53,9 @@
   
   <div class="home-main">
     <div id="svg-wrapper" class="svg-wrapper home"></div>
+    <div class="home-main-description">
+      The map below was created by <a href="http://brianfoo.com" target="_blank">Brian Foo</a> using personal memories from 2004-2014
+    </div>
   </div>
 
 </div>

@@ -268,8 +268,7 @@ app.views.TransitShowView = Backbone.View.extend({
       .append("svg")
       .attr("id", "map-svg")
       .attr("width", width)
-      .attr("height", height)
-      .attr("preserveAspectRatio", "xMidYMid meet");
+      .attr("height", height);
             
     // extract points, dots, labels from lines
     points = _.flatten( _.pluck(lines, "points") );
