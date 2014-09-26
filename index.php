@@ -51,6 +51,21 @@ if (defined('ENVIRONMENT'))
 
 /*
  *---------------------------------------------------------------
+ * SSL Redirection
+ *---------------------------------------------------------------
+ *
+ * Redirect to https:// if production and not already has secure
+ * protocol
+ */
+
+if (ENVIRONMENT == 'production' && empty($_SERVER['HTTPS'])) {
+  $url = "https://". $_SERVER['SERVER_NAME'] . $_SERVER['REQUEST_URI'];
+  header("Location: ".$url, TRUE, 301);
+  exit;
+}
+ 
+/*
+ *---------------------------------------------------------------
  * SYSTEM FOLDER NAME
  *---------------------------------------------------------------
  *
