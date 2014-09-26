@@ -2,7 +2,7 @@
 @import "variables";
 
 $sidebarWidth: 400px;
-$sidebarHeight: 1350px;
+$sidebarHeight: 1365px;
 $homeBreakPoint: 900px;
 
 .home-wrapper {
@@ -82,9 +82,11 @@ $homeBreakPoint: 900px;
     @include box-sizing();
   }
   h4 {    
-    padding: 20px;    
+    padding: 10px 20px;    
     float: left;
     color: $dark;
+    font-size: 0.8em;
+    letter-spacing: 1px;
     .circle {
       margin-left: -25px;
     } 

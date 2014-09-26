@@ -28,24 +28,26 @@
       <div class="steps">
         
         <div class="step">
-          <h4><span class="circle">1</span> People Are Converted To Train Lines</h4>
+          <h4><span class="circle">1</span> Enter the names of people, and they will be converted to train lines.</h4>
           <img src="/assets/img/home_step1.png" alt="People Are Converted To Train Lines" />
         </div>
         
         <div class="step">
-          <h4><span class="circle">2</span> Memories With A Person Become Their Train Stations</h4>
+          <h4><span class="circle">2</span> Enter memories you had with each person. Those memories become that person's train stations.</h4>
           <img src="/assets/img/home_step2.png" alt="Memories With A Person Become Their Train Stations" />
         </div>
         
         <div class="step">
-          <h4><span class="circle">3</span> Memories With Multiple People Become Transfer Stations</h4>
+          <h4><span class="circle">3</span> Memories with more than one person become transfer stations. 
+            Once finished, you can download or purchase a print of your map.</h4>
           <img src="/assets/img/home_step3.png" alt="Memories With Multiple People Become Transfer Stations" />
         </div>
       
       </div>
       
       <p>Read more about the methodology <a href="https://medium.com/@beefoo/building-a-memory-transit-map-82c2a05e456e" target="_blank">here</a>.
-        View an example <a href="/demo">here</a>.</p>
+        The map to the right is an example of a full map created by <a href="http://brianfoo.com" target="_blank">Brian</a>
+        created from personal memories from 2004 to 2014.</p>
     
     </div>
   
@@ -54,7 +56,7 @@
   <div class="home-main">
     <div id="svg-wrapper" class="svg-wrapper home"></div>
     <div class="home-main-description">
-      The map below was created by <a href="http://brianfoo.com" target="_blank">Brian Foo</a> using personal memories from 2004-2014
+      The map below was created by <a href="http://brianfoo.com" target="_blank">Brian Foo</a> using personal memories from 2004 to 2014
     </div>
   </div>
 
