@@ -46,8 +46,8 @@
       </div>
       
       <p>Read more about the methodology <a href="https://medium.com/@beefoo/building-a-memory-transit-map-82c2a05e456e" target="_blank">here</a>.
-        The map to the right is an example of a full map created by <a href="http://brianfoo.com" target="_blank">Brian</a>
-        created from personal memories from 2004 to 2014.</p>
+        The map to the right is an example of a full map by <a href="http://brianfoo.com" target="_blank">Brian</a>
+        created using personal memories from 2004 to 2014.</p>
     
     </div>
   
