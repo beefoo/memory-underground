@@ -58,11 +58,13 @@ if (defined('ENVIRONMENT'))
  * protocol
  */
 
-/* if (ENVIRONMENT == 'production' && empty($_SERVER['HTTPS'])) {
+$force_ssl = false; 
+
+if ($force_ssl && ENVIRONMENT == 'production' && empty($_SERVER['HTTPS'])) {
   $url = "https://". $_SERVER['SERVER_NAME'] . $_SERVER['REQUEST_URI'];
   header("Location: ".$url, TRUE, 301);
   exit;
-} */
+}
  
 /*
  *---------------------------------------------------------------
