@@ -7,7 +7,7 @@
       <h1><span class="circle">T</span>he <span class="circle">M</span>emory<br />
         <span class="circle">U</span>nderground</h1>
       
-      <h3>Convert a list of memories into a downloadable &amp; printable subway map</h3>
+      <h3>Convert a list of memories into a <!-- downloadable &amp; printable --> subway map</h3>
       
       <p>
         An experiment by <a href="http://brianfoo.com" target="_blank">Brian Foo</a>.<br />
