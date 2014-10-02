@@ -52,3 +52,15 @@
     }
   }
 }
+
+.transit-description {
+  position: fixed;
+  width: 200px;
+  top: 20px;
+  right: 20px;
+  padding: 6px 12px;
+  border: 1px solid #ccc;
+  font-size: 12px;
+  background: #eee;
+  z-index: 20;
+}
