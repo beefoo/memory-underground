@@ -48,7 +48,7 @@
           <ul>
             <li>Add memories until you are ready to see your map, then click the <em>Finish &amp; View</em> tab above.</li>
             <li>For best results you should have between 10 and 100 memories in total.</li>
-            <li>Memories should be listed in chronological order; you can drag memories up or down to change their order.</li>
+            <li>Memories should be listed in chronological order where the earliest is on top; you can drag memories up or down to change their order.</li>
           </ul>         
         </div>        
         <a href="#add-memory" class="tab-link button expand add-memory-button"><i class="icon icon-plus"></i> Add Another Memory</a>

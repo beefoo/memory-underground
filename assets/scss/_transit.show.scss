@@ -1,6 +1,11 @@
 @import "mixins";
 @import "variables";
 
+.transit-show,
+.transit-demo {
+  background: $medium;
+}
+
 .canvas-wrapper,
 .svg-wrapper {
   width: 100%;
@@ -9,11 +14,16 @@
   top: 0;
   left: 0;
   z-index: 1;
+  background: $white;
   canvas,
   svg {
     -webkit-backface-visibility: initial !important;
     -webkit-transform-origin: 50% 50%;
   }
+}
+
+.svg-wrapper.show {
+  margin-left: 82px;
 }
 
 .svg-controls {
@@ -28,13 +38,14 @@
     line-height: 40px;
     text-align: center;
     color: $white;
-    background: darken($tanLight, 10%);
+    background: darken($tanLight, 15%);
     margin-bottom: 10px;
     font-size: 1.4em;   
-    @include border-radius(4px);    
+    @include border-radius(4px); 
+    @include box-shadow();   
     &:hover {
       text-decoration: none;
-      background: $tan;
+      background: darken($tanLight, 10%);
     }
     &.hide {
       display: none;

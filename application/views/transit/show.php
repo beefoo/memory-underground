@@ -1,4 +1,4 @@
-<div id="svg-wrapper" class="svg-wrapper"></div>
+<div id="svg-wrapper" class="svg-wrapper show"></div>
 
 <div id="transit-controls" class="svg-controls">
   <a href="#zoom-in" class="svg-zoom-in" data-tooltip="Zoom in"><i class="icon icon-plus"></i></a>

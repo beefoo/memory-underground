@@ -39,7 +39,7 @@
         
         <div class="step">
           <h4><span class="circle">3</span> Memories with more than one person become transfer stations. 
-            Once finished, you can download or purchase a print of your map.</h4>
+            Once finished, you can download your map as an image.</h4>
           <img src="/assets/img/home_step3.png" alt="Memories With Multiple People Become Transfer Stations" />
         </div>
       

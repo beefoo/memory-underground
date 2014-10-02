@@ -29,6 +29,18 @@
   border-radius:         $radius;
 }
 
+@mixin box-shadow($x: 1px, $y: 1px, $blur: 2px, $color: rgba(0,0,0,.4), $inset: "") {
+  @if ($inset != "") {
+    -webkit-box-shadow: $inset $x $y $blur $color;
+    -moz-box-shadow:    $inset $x $y $blur $color;
+    box-shadow:         $inset $x $y $blur $color;
+  } @else {
+    -webkit-box-shadow: $x $y $blur $color;
+    -moz-box-shadow:    $x $y $blur $color;
+    box-shadow:         $x $y $blur $color;
+  }
+}
+
 @mixin box-sizing($type: border-box) {
     -webkit-box-sizing:   $type;
     -moz-box-sizing:      $type;
