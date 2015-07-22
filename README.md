@@ -6,7 +6,7 @@ Convert a list of memories into a subway map http://memoryunderground.com/
 
 * PHP 5.4+
 * MySQL 5.1+ database
-* Sass
+* Sass (optional)
 
 ## Quick Start
 
