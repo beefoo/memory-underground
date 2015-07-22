@@ -11,3 +11,4 @@ application/logs/*
 .project
 _dev/
 assets/.sass-cache/*
+application/config/production/*
