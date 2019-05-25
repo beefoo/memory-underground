@@ -2,17 +2,21 @@
 
 Convert a list of memories into a subway map http://memoryunderground.com/
 
-## Requirements
+## Running locally
 
-* PHP 5.4+
-* MySQL 5.1+ database
-* Sass (optional)
+1. Install [Node.js](https://nodejs.org/)
+2. Clone this repository:
 
-## Quick Start
+   ```
+   git clone https://github.com/beefoo/memory-underground.git
+   cd memory-underground
+   ```
+   
+3. Install and run the server
 
-* Configure your database settings at [application/config/database.php](application/config/database.php)
-* Create a MySQL database with the settings entered above
-* (optional) Run `sass --watch scss:css --style compressed` on the `assets` directory if you want to edit the styles via scss
-* Go to [http://localhost/migrate](http://localhost/migrate) to run the database migration
-
-For production database settings (i.e. not local development server), create a new folder in `application/config` called `production`, and copy [application/config/database.php](application/config/database.php) into that folder with updated settings.
+   ```
+   npm install connect serve-static
+   node server.js 8888
+   ```
+   
+4. Then go to [localhost:8888/](http://localhost:8888/)
