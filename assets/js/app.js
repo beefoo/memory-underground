@@ -23,7 +23,8 @@ app.routers.MainRouter = Backbone.Router.extend({
   routes: {
     '': 'home',
     'map/': 'transitAdd',
-    'map/view.html': 'transitShow'
+    'map/view.html?*queryString': 'transitShowWithParams',
+    'map/view.html': 'transitShow',
     // 'demo': 'demo',
     // 'map/add?*queryString': 'transitAdd',
     // 'map/edit/:token': 'transitEdit',
@@ -107,6 +108,26 @@ app.routers.MainRouter = Backbone.Router.extend({
     //   app.views.controls = new app.views.TransitControlsView(params);
     //   app.views.main.render(params);
     // });
+  },
+
+  transitShowWithParams: function(params){
+    params = helper.parseQueryString(params);
+    if (params.data) {
+      $.getJSON( "/data/"+params.data+".json", function(data) {
+        // console.log(localTransit)
+        var params = $.extend({}, config);
+        params.transit = data;
+        params.transit.legend = 1;
+        params.transit.labels = 1;
+        params.user = false;
+        app.views.main = new app.views.TransitShowView();
+        app.views.controls = new app.views.TransitControlsView(params);
+        app.views.main.render(params);
+      });
+
+    } else {
+      this.transitShow();
+    }
   },
 
   _getUser: function(){
