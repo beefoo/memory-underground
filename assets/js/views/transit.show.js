@@ -6,12 +6,12 @@ app.views.TransitShowView = Backbone.View.extend({
     // add listeners
     this.addListeners();
   },
-  
+
   addDotStyles: function(dots, options){
     var pointColor = options.pointColor,
         borderColor = options.borderColor,
-        borderWidth = options.borderWidth;    
-    
+        borderWidth = options.borderWidth;
+
     _.each(dots, function(dot){
       dot.className = dot.className || '';
       // train symbol
@@ -25,19 +25,19 @@ app.views.TransitShowView = Backbone.View.extend({
         dot.borderWidth = borderWidth;
       }
     });
-    
+
     return dots;
   },
-  
+
   addRectStyles: function(rects, options){
     var pointColor = options.pointColor,
         borderColor = options.borderColor,
         borderWidth = options.borderWidth,
         borderRadius = options.borderRadius,
-        pointRadius = options.pointRadius,        
+        pointRadius = options.pointRadius,
         dotSize = pointRadius*2,
         offsetWidth = options.offsetWidth - dotSize;
-        
+
     _.each(rects, function(rect){
       rect.className = rect.className || '';
       // hub
@@ -51,35 +51,35 @@ app.views.TransitShowView = Backbone.View.extend({
         rect.rectX = rect.x - pointRadius;
         rect.rectY = rect.y - pointRadius;
       // legend
-      } else if (rect.type=="legend") {        
+      } else if (rect.type=="legend") {
         rect.borderColor = borderColor;
         rect.borderWidth = borderWidth;
         rect.borderRadius = 0;
       }
     });
-    
+
     return rects;
   },
-  
+
   addLabelStyles: function(labels, options){
     var fontFamily = options.fontFamily,
         textColor = options.textColor,
         fontSize = options.fontSize,
         fontWeight = options.fontWeight;
-    
+
     _.each(labels, function(label){
       label.className = label.className || '';
       label.fontFamily = fontFamily;
       label.alignment = "middle";
-      // symbol    
+      // symbol
       if (label.symbol) {
         label.textColor = "#ffffff";
         label.fontSize = 14;
         label.fontWeight = "normal";
-        label.anchor = "middle"; 
+        label.anchor = "middle";
         label.text = label.symbol;
         label.labelX = label.labelX!==undefined ? label.labelX : label.x;
-        label.labelY = label.labelY!==undefined ? label.labelY : label.y + 1;  
+        label.labelY = label.labelY!==undefined ? label.labelY : label.y + 1;
       // label
       } else {
         label.textColor = textColor;
@@ -88,80 +88,80 @@ app.views.TransitShowView = Backbone.View.extend({
         label.anchor = label.anchor || "end";
         label.text = label.text || label.label;
         label.labelX = label.labelX!==undefined ? label.labelX : label.x-10;
-        label.labelY = label.labelY!==undefined ? label.labelY : label.y; 
+        label.labelY = label.labelY!==undefined ? label.labelY : label.y;
       }
     });
-    
+
     return labels;
   },
-  
+
   addLineStyles: function(lines, options){
     var strokeOpacity = options.strokeOpacity,
         strokeWidth = options.strokeWidth;
-    
+
     _.each(lines, function(line){
       line.className = line.className || '';
       line.strokeOpacity = strokeOpacity;
-      // symbol    
+      // symbol
       if (line.type=="symbol") {
-        line.color = "#aaaaaa";   
+        line.color = "#aaaaaa";
         line.strokeWidth = 2;
         line.strokeDash = "2,2";
-   
+
       // normal line
       } else {
         line.strokeWidth = strokeWidth;
         line.strokeDash = "none";
       }
     });
-    
+
     return lines;
   },
-  
+
   addListeners: function(){
     var that = this;
-    
+
     // keyboard listeners
-    $(document).on('keydown', function(e){        
-      switch(e.keyCode) {          
+    $(document).on('keydown', function(e){
+      switch(e.keyCode) {
         // o - output to svg
         case 79:
           if (e.ctrlKey) that.exportSVG();
           break;
-          
+
         default:
           break;
       }
-    });    
+    });
   },
-  
+
   adjustHeight: function(height, stationCount, options) {
     var yUnit = options.yUnit,
         paddingY = options.padding[1],
         activeH = height - paddingY*2;
-    
+
     // make height shorter if not enough stations
     if (Math.floor(height/stationCount) > yUnit) {
       activeH = yUnit*stationCount;
       height = activeH + paddingY*2;
     }
-    
+
     return height;
   },
-  
+
   adjustWidth: function(width, stationCount, options){
     var xUnit = options.xUnit,
         paddingX = options.padding[0],
         activeW = width - paddingX*2;
-    
+
     // make height shorter if not enough stations
     if (Math.floor(width/stationCount) > xUnit) {
       activeW = xUnit*stationCount;
       width = activeW + paddingX*2;
     }
-    
+
     width = _.max([options.minWidth, width]);
-    
+
     return width;
   },
 
@@ -177,7 +177,7 @@ app.views.TransitShowView = Backbone.View.extend({
       .style("stroke", function(d){ return d.borderColor; })
       .style("stroke-width", function(d){ return d.borderWidth; });
   },
-  
+
   drawRects: function(svg, rects){
     _.each(rects, function(r){
       svg.append("rect")
@@ -191,10 +191,10 @@ app.views.TransitShowView = Backbone.View.extend({
         .style("fill", r.pointColor)
         .style("stroke", r.borderColor)
         .style("stroke-width", r.borderWidth);
-    });    
+    });
   },
-  
-  drawLabels: function(svg, labels, options) {        
+
+  drawLabels: function(svg, labels, options) {
     svg.selectAll("text")
       .data(labels)
       .enter().append("text")
@@ -204,25 +204,25 @@ app.views.TransitShowView = Backbone.View.extend({
       .attr("y", function(d) { return d.labelY; })
       .attr("text-anchor",function(d){ return d.anchor; })
       .attr("alignment-baseline",function(d){ return d.alignment; })
-      .attr("dominant-baseline",function(d){ return d.alignment; })      
+      .attr("dominant-baseline",function(d){ return d.alignment; })
       .attr("font-size", function(d){ return d.fontSize; })
       .style("font-family", function(d){ return d.fontFamily; })
       .style("font-weight", function(d){ return d.fontWeight; })
       .style("fill", function(d){ return d.textColor; });
   },
-  
+
   drawLines: function(svg, lines, options) {
     var that = this,
         pathInterpolation = options.pathInterpolation,
         animate = options.animate,
         animationDuration = options.animationDuration,
         svg_line;
-        
+
     svg_line = d3.svg.line()
       .interpolate(pathInterpolation)
       .x(function(d) { return d.x; })
       .y(function(d) { return d.y; });
-      
+
     _.each(lines, function(line){
       var points = line.points,
           path = svg.append("path")
@@ -230,9 +230,9 @@ app.views.TransitShowView = Backbone.View.extend({
                   .attr("class", line.className)
                   .style("stroke", line.color)
                   .style("stroke-width", line.strokeWidth)
-                  .style("stroke-opacity", line.strokeOpacity)                  
+                  .style("stroke-opacity", line.strokeOpacity)
                   .style("fill", "none");
-                  
+
       // animate if it's a solid line
       if (path && animate && line.strokeDash=="none" && line.className.indexOf("primary")>=0) {
         var totalLength = path.node().getTotalLength();
@@ -242,70 +242,70 @@ app.views.TransitShowView = Backbone.View.extend({
           .transition()
             .duration(animationDuration)
             .ease("linear")
-            .attr("stroke-dashoffset", 0)   
-      
+            .attr("stroke-dashoffset", 0)
+
       // otherwise, set the stroke dash
       } else {
         path.style("stroke-dasharray", line.strokeDash);
-      }    
-                
+      }
+
     });
   },
-  
+
   drawMap: function(lines, legend, width, height, options){
-    var bgColor = options.bgColor,        
+    var bgColor = options.bgColor,
         svg, points = [], dots = [], labels = [], rects = [],
         showLegend = parseInt(options.transit.legend),
         showLabels = parseInt(options.transit.labels);
-    
+
     // reset if already there
     if ($("#map-svg").length > 0) {
       $("#map-svg").remove();
     }
-    
+
     // init svg and add to DOM
     svg = d3.select("#svg-wrapper")
       .append("svg")
       .attr("id", "map-svg")
       .attr("width", width)
       .attr("height", height);
-            
+
     // extract points, dots, labels from lines
     points = _.flatten( _.pluck(lines, "points") );
-    dots = _.filter(points, function(p){ return p.pointRadius && p.pointRadius > 0; });    
+    dots = _.filter(points, function(p){ return p.pointRadius && p.pointRadius > 0; });
     if (showLabels) labels = _.filter(points, function(p){ return p.label !== undefined || p.symbol !== undefined; });
     rects = _.filter(points, function(p){ return p.hubSize; });
-    
+
     // add legend items
     if (showLegend) {
       lines = _.union(lines, legend.lines);
       dots = _.union(dots, legend.dots);
       labels = _.union(labels, legend.labels);
-    }   
-    
+    }
+
     // add styles
     lines = this.addLineStyles(lines, options);
     dots = this.addDotStyles(dots, options);
     labels = this.addLabelStyles(labels, options);
     rects = this.addRectStyles(rects, options);
     legend.rects = this.addRectStyles(legend.rects, options);
-    
+
     // draw lines, dots, labels, rects
     if (showLegend) this.drawRects(svg, legend.rects);
     this.drawLines(svg, lines, options);
-    this.drawDots(svg, dots, options);   
+    this.drawDots(svg, dots, options);
     this.drawRects(svg, rects, options);
     this.drawLabels(svg, labels, options);
   },
-  
-  exportSVG: function(){    
+
+  exportSVG: function(){
     var dataUrl = this.getImageDataUrl();
-    
+
     window.open(dataUrl, '_blank');
-    
+
     // $("body").append($("<img src='data:image/svg+xml;base64,\n"+b64+"' alt='file.svg'/>"));
   },
-  
+
   getColor: function(lines, colors){
     var i = lines.length;
     if (i>=colors.length) {
@@ -313,14 +313,14 @@ app.views.TransitShowView = Backbone.View.extend({
     }
     return colors[i];
   },
-  
+
   getImageDataUrl: function(){
     var svg_xml = $("#map-svg").parent().html(),
         b64 = window.btoa(svg_xml);
-        
-    return "data:image/svg+xml;base64,\n"+b64; 
+
+    return "data:image/svg+xml;base64,\n"+b64;
   },
-  
+
   getLengths: function(xDiff, yDiff, directions, y, options) {
     var lengths = [],
         rand = helper.hRandom(20, 80) / 100,
@@ -328,21 +328,21 @@ app.views.TransitShowView = Backbone.View.extend({
         paddingY = options.padding[1],
         i = 0, timeout = 10,
         firstY;
-    
+
     // don't let in-between points overlap with yUnit
     while((y+Math.round(yDiff*rand)-paddingY)%yUnit===0 && i<timeout) {
       rand = helper.hRandom(20,80) / 100;
       i++;
     }
-    
+
     xDiff = Math.abs(xDiff);
-    
+
     _.each(directions, function(d, i){
       // assuming only 1 east or west
       if (d=="e" || d=="w") {
         lengths.push(xDiff);
        // assuming only 2 souths
-      } else { 
+      } else {
         if (i==0) {
           firstY = Math.round(yDiff*rand);
           lengths.push(firstY);
@@ -351,11 +351,11 @@ app.views.TransitShowView = Backbone.View.extend({
         }
       }
     });
-    
+
     return lengths;
-    
+
   },
-  
+
   getNextX: function(boundaries, iterator, totalPoints, width, minXDiff, prevPoint){
     var x = 0,
         prevPadding = 0.25,
@@ -371,19 +371,19 @@ app.views.TransitShowView = Backbone.View.extend({
         mins = [absMinX, trendMinX],
         maxs = [absMaxX, trendMaxX],
         xDiff = 0;
-    
+
     // make sure point is within x% of previous point
     if (prevPoint) {
       mins.push(prevPoint.x - Math.round(width*prevPadding));
       maxs.push(prevPoint.x + Math.round(width*prevPadding));
     }
-    
+
     // determine the min/max
     minX = _.max(mins);
-    maxX = _.min(maxs);   
-    
+    maxX = _.min(maxs);
+
     do {
-      // ensure no logic error   
+      // ensure no logic error
       if (minX<maxX) {
         x =  helper.hRandom(minX, maxX);
       } else {
@@ -392,10 +392,10 @@ app.views.TransitShowView = Backbone.View.extend({
       if (prevPoint)
         xDiff = Math.abs(Math.floor(x - prevPoint.x));
     } while(prevPoint && xDiff<minXDiff); // ensure xDiff is above min
-    
+
     return x;
   },
-  
+
   getPointsBetween: function(p1, p2, pathTypes, cornerRadius, options) {
     var that = this,
         points = [],
@@ -405,41 +405,41 @@ app.views.TransitShowView = Backbone.View.extend({
         xDiff = x2 - x1,
         xDirection = false,
         pathType = false;
-        
-    // determine x direction 
+
+    // determine x direction
     if (xDiff>0) {
       xDirection = "e";
     } else if (xDiff<0) {
       xDirection = "w";
     }
-    
+
     // filter and choose random path type
     pathTypes = _.filter(pathTypes, function(pt){
       return pt.xDirection===xDirection;
     });
-    pathType = _.sample(pathTypes);  
+    pathType = _.sample(pathTypes);
 
     // get points if path type exists
     if (pathType && xDirection) {
-      
+
       // retrieve directions
       var directions = pathType.directions;
-      
+
       // retrieve lengths
       var x = x1, y = y1,
           lengths = that.getLengths(xDiff, yDiff, directions, y, options);
-          
+
       // generate points
       _.each(directions, function(direction, i){
         var length = lengths[i],
             point = that.translateCoordinates(x, y, direction, length),
             pointR1 = false, pointR2 = false;
-            
+
         x = point.x;
-        y = point.y;        
+        y = point.y;
         point.id = _.uniqueId('p');
         point.direction1 = direction;
-        
+
         // add transition points if corner radius
         if (cornerRadius>0 && cornerRadius<length/2) {
           if (direction=="s") {
@@ -453,24 +453,24 @@ app.views.TransitShowView = Backbone.View.extend({
             pointR2 = { x: x+cornerRadius, y: y };
           }
         }
-        
+
         // add points
         if (pointR1) points.push(pointR1);
         if (pointR2) points.push(pointR2);
-        points.push(point);        
-        
+        points.push(point);
+
         // add direction out
         if (i>0) {
           points[i-1].direction2 = direction;
         }
       });
-           
+
       // ensure the last point matches target
       if (points.length > 0) {
         points[points.length-1].x = x2;
         points[points.length-1].y = y2;
       }
-    
+
     // otherwise, just return target point
     } else {
       points.push({
@@ -479,20 +479,20 @@ app.views.TransitShowView = Backbone.View.extend({
         x: x2,
         y: y2
       });
-    }   
-    
+    }
+
     return points;
   },
-  
+
   getSymbol: function(lineLabel, lines) {
     // prioritize characters: uppercase label, numbers, lowercase label
     var str = lineLabel.toUpperCase() + "1234567890ABCDEFGHIJKLMNOPQRSTUVWXYZ" + lineLabel.toLowerCase() + "abcdefghijklmnopqrstuvwxyz",
         symbols = _.pluck(lines, "symbol"),
         symbol = str.charAt(0);
-    
+
     // strip spaces
     str = str.replace(" ","");
-    
+
     // loop through string's characters
     for(var i=0; i<str.length; i++) {
       // get next character
@@ -503,18 +503,18 @@ app.views.TransitShowView = Backbone.View.extend({
         break;
       }
     }
-    
+
     return symbol;
   },
-  
+
   getTitleLines: function(title, titleMaxLineChars) {
     var lines = [],
         titleLength = title.length,
         words = title.split(" "),
         currentLine = "";
-        
+
     _.each(words, function(word){
-      // if new word goes over max, start new line 
+      // if new word goes over max, start new line
       if (word.length+currentLine.length+1 > titleMaxLineChars) {
         lines.push(currentLine);
         currentLine = word;
@@ -522,18 +522,18 @@ app.views.TransitShowView = Backbone.View.extend({
         currentLine += ' ' + word;
       }
     });
-    
+
     if (currentLine.length) lines.push(currentLine);
-    
+
     return lines;
   },
-  
+
   makeEndLines: function(lines, options){
     var pointRadiusLarge = options.pointRadiusLarge,
         lineLength = pointRadiusLarge * 2 + 10,
         endLines = [],
         yHash = {};
-        
+
     _.each(lines, function(line, i){
       var firstPoint = line.points[0],
           lastPoint = line.points[line.points.length-1],
@@ -541,10 +541,10 @@ app.views.TransitShowView = Backbone.View.extend({
           pointClassName = helper.parameterize('point-'+line.label) + ' end-line',
           lineStart = { className: lineClassName + ' start-line', type: 'symbol', points: [] },
           lineEnd = { className: lineClassName, type: 'symbol', points: [] },
-          
+
           fpId = 'p'+firstPoint.y,
           lpId = 'p'+lastPoint.y;
-      
+
       // keep track of existing y points
       if (yHash[fpId]!==undefined) {
         yHash[fpId]++;
@@ -556,7 +556,7 @@ app.views.TransitShowView = Backbone.View.extend({
       } else {
         yHash[lpId] = 0;
       }
-      
+
       // add start line
       lineStart.points.push({
         x: firstPoint.x,
@@ -571,7 +571,7 @@ app.views.TransitShowView = Backbone.View.extend({
         y: firstPoint.y,
         className: pointClassName
       });
-          
+
       // make end line
       lineEnd.points.push({
         x: lastPoint.x,
@@ -586,16 +586,16 @@ app.views.TransitShowView = Backbone.View.extend({
         pointRadius: pointRadiusLarge,
         className: pointClassName + ' symbol'
       });
-      
+
       // add end lines
-      endLines.push(lineStart, lineEnd);      
-      
+      endLines.push(lineStart, lineEnd);
+
     });
-    
+
     return endLines;
   },
-  
-  makeLegend: function(width, lines, options){    
+
+  makeLegend: function(width, lines, options){
     var // options
         canvasWidth = width,
         canvasPaddingX = options.padding[0],
@@ -603,9 +603,9 @@ app.views.TransitShowView = Backbone.View.extend({
         title = options.title,
         pointRadius = options.pointRadius,
         pointRadiusLarge = options.pointRadiusLarge,
-        borderWidth = options.borderWidth,        
+        borderWidth = options.borderWidth,
         columns = lines.length > options.legend.columnThreshold ? options.legend.columns : 1,
-        legendWidth = options.legend.columnWidth * columns,     
+        legendWidth = options.legend.columnWidth * columns,
         padding = options.legend.padding,
         bgColor = options.legend.bgColor,
         titleFontSize = options.legend.titleFontSize,
@@ -615,15 +615,15 @@ app.views.TransitShowView = Backbone.View.extend({
         lineHeight = options.legend.lineHeight,
         gridUnit = options.legend.gridUnit,
         // calculations
-        columnWidth = Math.floor((legendWidth-padding*2)/columns),        
-        titleLines = this.getTitleLines(title, titleMaxLineChars),        
+        columnWidth = Math.floor((legendWidth-padding*2)/columns),
+        titleLines = this.getTitleLines(title, titleMaxLineChars),
         x1 = legendWidth >= canvasWidth/2 ? canvasWidth - legendWidth - padding - borderWidth*2 : canvasWidth/2,
         y1 = canvasPaddingY,
         lineCount = lines.length,
-        height = padding *2 + lineHeight*Math.ceil(lineCount/columns) + titleLineHeight*titleLines.length,        
-        // initializers       
+        height = padding *2 + lineHeight*Math.ceil(lineCount/columns) + titleLineHeight*titleLines.length,
+        // initializers
         legend = {dots: [], labels: [], lines: [], rects: []};
-    
+
     // break up lines into columns
     var columnLines = [],
         perColumn = Math.floor(lineCount/columns),
@@ -639,7 +639,7 @@ app.views.TransitShowView = Backbone.View.extend({
       );
       lineIndex = end;
     });
-    
+
     // create rectangle
     legend.rects.push({
       width: legendWidth,
@@ -649,11 +649,11 @@ app.views.TransitShowView = Backbone.View.extend({
       pointColor: bgColor,
       type: "legend"
     });
-    
+
     // add legend padding
     x1 += padding;
     y1 += padding;
-    
+
     // add title
     _.each(titleLines, function(titleLine, i){
       legend.labels.push({
@@ -666,22 +666,22 @@ app.views.TransitShowView = Backbone.View.extend({
       });
       y1 += titleLineHeight;
     });
-    
+
     // add a space
     y1 += gridUnit;
-    
+
     // loop through columns
     _.each(columnLines, function(columnLine, c){
-      
+
       var colOffset = columnWidth * c,
           y2 = y1;
-      
+
       // loop through lines
       _.each(columnLine, function(line, i){
-        
+
         var lineClassName = helper.parameterize('line-'+line.label) + ' legend',
             pointClassName = helper.parameterize('point-'+line.label) + ' legend';
-        
+
         // add symbol dot
         legend.dots.push({
           x: colOffset+x1+pointRadiusLarge, y: y2,
@@ -698,7 +698,7 @@ app.views.TransitShowView = Backbone.View.extend({
           symbol: line.symbol,
           className: pointClassName
         });
-        
+
         // add line
         legend.lines.push({
           color: line.color,
@@ -714,7 +714,7 @@ app.views.TransitShowView = Backbone.View.extend({
           x: colOffset+x1+pointRadiusLarge*2+gridUnit*2, y: y2,
           pointRadius: pointRadius,
           className: pointClassName
-        });      
+        });
         // add line label
         legend.labels.push({
           text: line.label + " Line",
@@ -725,17 +725,17 @@ app.views.TransitShowView = Backbone.View.extend({
           type: "legend",
           className: pointClassName
         });
-        
+
         y2+=lineHeight;
       });
-      
-      
+
+
     });
-    
+
     return legend;
-    
+
   },
-  
+
   makeLines: function(stations, width, height, options){
     var that = this,
         // options
@@ -743,7 +743,7 @@ app.views.TransitShowView = Backbone.View.extend({
         paddingY = options.padding[1],
         colors = options.colors,
         pathTypes = options.pathTypes,
-        offsetWidth = options.offsetWidth,        
+        offsetWidth = options.offsetWidth,
         cornerRadius = options.cornerRadius,
         minXDiff = options.minXDiff,
         pointRadius = options.pointRadius,
@@ -757,41 +757,41 @@ app.views.TransitShowView = Backbone.View.extend({
         // initializers
         lines = [],
         prevLines = [];
-    
+
     // ensure y-unit is 2 or more
     if (yUnit<2) yUnit = 2;
     options.yUnit = yUnit;
-    
+
     // loop through stations
     _.each(stations, function(station, i){
       var nextY = paddingY + i * yUnit, // next available yUnit
           nextX = that.getNextX(boundaries, i, stationCount, activeW, minXDiff), // random x
           lineCount = station.lines.length,
           firstX = nextX;
-          
+
       // loop through station's lines
       _.each(station.lines, function(lineLabel, j){
         // if line already exists
         var foundLine = _.findWhere(lines, {label: lineLabel}),
-            prevPoint = false, 
+            prevPoint = false,
             lineClassName = helper.parameterize('line-'+lineLabel) + " primary",
             pointClassName = helper.parameterize('point-'+lineLabel),
             newPoint;
-        
+
         // retieve previous point
         if (foundLine) {
-          prevPoint = _.last(foundLine.points); 
+          prevPoint = _.last(foundLine.points);
         }
-        
+
         // if line is in previous lines, it will be straight
         if (prevLines.indexOf(lineLabel)>=0 && prevPoint) {
           nextX = prevPoint.x;
-        
+
         // if line already exists, make sure X is within 20% of previous X
-        } else if (prevPoint) {                   
+        } else if (prevPoint) {
           nextX = that.getNextX(boundaries, i, stationCount, activeW, minXDiff, prevPoint);
         }
-        
+
         // init new point
         newPoint = {
           id: _.uniqueId('p'),
@@ -801,7 +801,7 @@ app.views.TransitShowView = Backbone.View.extend({
           pointRadius: pointRadius,
           className: pointClassName + " station"
         };
-            
+
         // for first line, just add target point
         if (j===0) {
           firstX = newPoint.x;
@@ -810,72 +810,72 @@ app.views.TransitShowView = Backbone.View.extend({
           if (lineCount >= hubSize) {
             newPoint.hubSize = lineCount;
             newPoint.className += " hub";
-          }          
-          
+          }
+
         // for additional new lines, place first point next to the first line's target point plus offset
         } else {
           newPoint.x = firstX + j*offsetWidth;
           newPoint.className += " secondary";
         }
-        
+
         // line already exists
         if (foundLine){
           var transitionPoints = [],
-              lastPoint;          
+              lastPoint;
 
           // retrieve transition points
-          transitionPoints = that.getPointsBetween(prevPoint, newPoint, pathTypes, cornerRadius, options);          
-          
+          transitionPoints = that.getPointsBetween(prevPoint, newPoint, pathTypes, cornerRadius, options);
+
           // add direction2 to previous point
           if (transitionPoints.length > 0 && foundLine.points.length > 0) {
             lastPoint = _.last(foundLine.points);
             lastPoint.direction2 = transitionPoints[0].direction1;
           }
 
-          // add transition points          
+          // add transition points
           _.each(transitionPoints, function(tp){
             tp.className = pointClassName;
             foundLine.points.push(tp);
           });
-          
+
           // update last point with meta data
           lastPoint = _.last(foundLine.points);
-          lastPoint = _.extend(lastPoint, newPoint);          
-          
+          lastPoint = _.extend(lastPoint, newPoint);
+
         // line does not exist, add a new one
-        } else {          
+        } else {
           var color = that.getColor(lines, colors),
               newLine = {
                 label: lineLabel,
                 color: color.hex,
                 symbol: that.getSymbol(lineLabel, lines),
                 className: lineClassName,
-                points: []            
-              };         
+                points: []
+              };
           // add point to line, add line to lines
           newLine.points.push(newPoint);
           lines.push(newLine);
         }
-        
+
       });
-      
-      prevLines = station.lines;     
+
+      prevLines = station.lines;
     });
-    
+
     // console.log(lines)
-    
+
     return lines;
   },
-  
-  panZoom: function($selector){    
+
+  panZoom: function($selector){
     if ($selector.panzoom("instance")) {
       $selector.panzoom("reset");
       $selector.panzoom("destroy");
-    }      
+    }
     var $panzoom = $selector.panzoom({
       $zoomIn: $('.svg-zoom-in'),
       $zoomOut: $('.svg-zoom-out')
-    });    
+    });
     $panzoom.parent().on('mousewheel.focal', function( e ) {
       e.preventDefault();
       var delta = e.delta || e.originalEvent.wheelDelta;
@@ -887,56 +887,56 @@ app.views.TransitShowView = Backbone.View.extend({
       });
     });
   },
-  
+
   processStations: function(stations){
     var that = this,
         lineLabels = _.uniq( _.flatten( _.pluck(stations, 'lines') ) ); // get unique lines
-    
-    // loop through each point    
+
+    // loop through each point
     _.each(stations, function(station, i){
       // sort all the lines consistently
       station.lines = _.sortBy(station.lines, function(lineLabel){ return lineLabels.indexOf(lineLabel); });
     });
-    
+
     return stations;
   },
-  
+
   render: function(options){
     // reset halton sequence index
     helper.hRandomIndex = 0;
-    
+
     // render the map
     this.renderMap(options);
-    
+
     // activate pan-zoom
-    this.panZoom($("#map-svg"));    
+    this.panZoom($("#map-svg"));
   },
-  
+
   renderMap: function(options){
     var stations = options.transit.stations,
         width = options.width,
         height = options.height,
         pathInterpolation = options.pathInterpolation,
         lines = [], endLines = [], legend;
-    
-    options.title = options.transit.title; 
-    stations = this.processStations(stations);    
+
+    options.title = options.transit.title;
+    stations = this.processStations(stations);
     height = this.adjustHeight(height, stations.length, options);
     width = this.adjustWidth(width, stations.length, options);
-    
+
     // generate lines with points
     lines = this.makeLines(stations, width, height, options);
     legend = this.makeLegend(width, lines, options);
     endLines = this.makeEndLines(lines, options);
     lines = _.union(lines, endLines);
-    
+
     // draw the svg map
     this.drawMap(lines, legend, width, height, options);
   },
-  
+
   translateCoordinates: function(x, y, direction, length){
     var x_direction = 0, y_direction = 0;
-    
+
     switch(direction){
       case 'e':
         x_direction = 1;
@@ -957,55 +957,66 @@ app.views.TransitShowView = Backbone.View.extend({
 });
 
 app.views.TransitControlsView = Backbone.View.extend({
-  
+
   el: '#transit-controls',
 
   initialize: function(options) {
-    
+
     var that = this;
-    
+
     this.transit = options.transit;
-    
+
     if (options.user){
       this.getUserMaps(options.user);
     }
-    
+
     setTimeout(function(){
       that.updateDownloadLink();
+      that.updateDownloadSVGLink();
     },options.animationDuration)
   },
-  
+
   getUserMaps: function(user){
     var that = this;
-    
+
     $.getJSON( "/api/map/user/"+user, function(data) {
       that.updateEditLink(data);
     });
   },
-  
+
   updateDownloadLink: function(){
     var content = $("#map-svg").parent().html().trim(),
         canvas = document.getElementById('svg-canvas');
 
     // Draw svg on canvas
     canvg(canvas, content);
-    
+
     // Retrieve img data
     var imgSrc = canvas.toDataURL('image/png'),
         $link = this.$('.download-link');
-        
+
     $link.attr('href', imgSrc);
     $link.attr('download', 'memory-subway-map.png');
     $link.removeClass('hide');
-    
-    // window.open(imgSrc, '_blank');  
+
+    // window.open(imgSrc, '_blank');
   },
-  
+
+  updateDownloadSVGLink: function(){
+    var svgData = $("#map-svg")[0].outerHTML;
+    var svgBlob = new Blob([svgData], {type:"image/svg+xml;charset=utf-8"});
+    var svgUrl = URL.createObjectURL(svgBlob);
+    var $link = this.$('.download-svg');
+    $link.attr('href', svgUrl);
+    $link.attr('download', 'memory-subway-map.svg');
+    $link.removeClass('hide');
+  },
+
   updateEditLink: function(maps){
     var match = _.findWhere(maps, {slug: this.transit.slug});
     if (match){
       this.$('.edit-link').attr('href', '/map/edit/'+match.token).removeClass('hide')
     }
   }
-  
+
 });
