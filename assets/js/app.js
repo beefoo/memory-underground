@@ -25,6 +25,10 @@ app.routers.MainRouter = Backbone.Router.extend({
     'map/': 'transitAdd',
     'map/view.html?*queryString': 'transitShowWithParams',
     'map/view.html': 'transitShow',
+    'memory-underground/': 'home',
+    'memory-underground/map/': 'transitAdd',
+    '/memory-underground/map/view.html?*queryString': 'transitShowWithParams',
+    '/memory-underground/map/view.html': 'transitShow'
     // 'demo': 'demo',
     // 'map/add?*queryString': 'transitAdd',
     // 'map/edit/:token': 'transitEdit',
