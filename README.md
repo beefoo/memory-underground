@@ -1,6 +1,6 @@
 # Memory Underground
 
-Convert a list of memories into a subway map http://memoryunderground.com/
+Convert a list of memories into a subway map http://memoryunderground.brianfoo.com/
 
 ## Running locally
 
